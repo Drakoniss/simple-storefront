@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="StoreFront - Inventory & POS Management System">
+    <title>StoreFront - POS & Inventory Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-store fa-3x"></i>
+                <h1>StoreFront</h1>
+                <p>Inventory & POS Management System</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Default credentials: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app hidden">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-store"></i>
+                <span>StoreFront</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="pos">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Point of Sale</span>
+                </li>
+                <li class="nav-item" data-page="products">
+                    <i class="fas fa-boxes"></i>
+                    <span>Products</span>
+                </li>
+                <li class="nav-item" data-page="inventory">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Inventory</span>
+                </li>
+                <li class="nav-item" data-page="sales">
+                    <i class="fas fa-receipt"></i>
+                    <span>Sales</span>
+                </li>
+                <li class="nav-item" data-page="customers">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </li>
+                <li class="nav-item" data-page="suppliers">
+                    <i class="fas fa-truck"></i>
+                    <span>Suppliers</span>
+                </li>
+                <li class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </li>
+                <li class="nav-item admin-only" data-page="users">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Users</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="current-user">User</span>
+                </div>
+                <button id="logout-btn" class="btn btn-danger btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                    <div class="page-actions">
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon sales">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Today's Sales</h3>
+                            <p id="today-sales">$0.00</p>
+                            <span id="today-transactions">0 transactions</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon products">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Products</h3>
+                            <p id="total-products">0</p>
+                            <span id="inventory-value">$0.00 value</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Low Stock</h3>
+                            <p id="low-stock-count">0</p>
+                            <span>Items need reorder</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon customers">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Monthly Sales</h3>
+                            <p id="monthly-sales">$0.00</p>
+                            <span id="monthly-transactions">0 transactions</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-row">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-clock"></i> Recent Sales</h2>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt</th>
+                                        <th>Customer</th>
+                                        <th>Total</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-sales-table">
+                                    <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-exclamation-circle"></i> Low Stock Alerts</h2>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>SKU</th>
+                                        <th>Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="low-stock-table">
+                                    <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Page -->
+            <div id="page-pos" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-cash-register"></i> Point of Sale</h1>
+                </div>
+                <div class="pos-container">
+                    <div class="pos-products">
+                        <div class="search-bar">
+                            <input type="text" id="pos-search" placeholder="Search products or scan barcode...">
+                            <select id="pos-category-filter">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div id="pos-products-grid" class="products-grid">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="pos-cart">
+                        <div class="cart-header">
+                            <h2><i class="fas fa-shopping-cart"></i> Current Sale</h2>
+                        </div>
+                        <div class="cart-customer">
+                            <select id="pos-customer">
+                                <option value="">Walk-in Customer</option>
+                            </select>
+                        </div>
+                        <div class="cart-items" id="cart-items">
+                            <div class="cart-empty">Add items to start a sale</div>
+                        </div>
+                        <div class="cart-totals">
+                            <div class="cart-row">
+                                <span>Subtotal:</span>
+                                <span id="cart-subtotal">$0.00</span>
+                            </div>
+                            <div class="cart-row">
+                                <span>Tax:</span>
+                                <span id="cart-tax">$0.00</span>
+                            </div>
+                            <div class="cart-row">
+                                <span>Discount:</span>
+                                <input type="number" id="cart-discount" value="0" min="0" step="0.01">
+                            </div>
+                            <div class="cart-row total">
+                                <span>Total:</span>
+                                <span id="cart-total">$0.00</span>
+                            </div>
+                        </div>
+                        <div class="cart-payment">
+                            <label>Payment Method:</label>
+                            <div class="payment-methods">
+                                <button class="payment-btn active" data-method="cash">
+                                    <i class="fas fa-money-bill"></i> Cash
+                                </button>
+                                <button class="payment-btn" data-method="card">
+                                    <i class="fas fa-credit-card"></i> Card
+                                </button>
+                                <button class="payment-btn" data-method="mobile">
+                                    <i class="fas fa-mobile-alt"></i> Mobile
+                                </button>
+                            </div>
+                        </div>
+                        <div class="cart-actions">
+                            <button id="clear-cart-btn" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                            <button id="checkout-btn" class="btn btn-success">
+                                <i class="fas fa-check"></i> Complete Sale
+                            </button>
+                        </div>
+                        <div class="cash-received hidden" id="cash-payment-section">
+                            <label>Amount Received:</label>
+                            <input type="number" id="cash-received" step="0.01" placeholder="0.00">
+                            <div class="change-due">
+                                Change: <span id="change-due">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div id="page-products" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-boxes"></i> Products</h1>
+                    <div class="page-actions">
+                        <button id="add-product-btn" class="btn btn-primary manager-only">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                </div>
+                <div class="filters">
+                    <input type="text" id="product-search" placeholder="Search products...">
+                    <select id="product-category-filter">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="product-status-filter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Cost</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table">
+                                <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="products-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Page -->
+            <div id="page-inventory" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-clipboard-list"></i> Inventory Management</h1>
+                    <div class="page-actions">
+                        <button id="stock-adjust-btn" class="btn btn-primary manager-only">
+                            <i class="fas fa-adjust"></i> Stock Adjustment
+                        </button>
+                        <button id="inventory-count-btn" class="btn btn-secondary manager-only">
+                            <i class="fas fa-clipboard-check"></i> Stock Count
+                        </button>
+                    </div>
+                </div>
+                <div class="inventory-summary">
+                    <div class="summary-item">
+                        <span>Total Products</span>
+                        <strong id="inv-total-products">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Total Units</span>
+                        <strong id="inv-total-units">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Inventory Value</span>
+                        <strong id="inv-total-value">$0.00</strong>
+                    </div>
+                    <div class="summary-item warning">
+                        <span>Low Stock Items</span>
+                        <strong id="inv-low-stock">0</strong>
+                    </div>
+                    <div class="summary-item danger">
+                        <span>Out of Stock</span>
+                        <strong id="inv-out-stock">0</strong>
+                    </div>
+                </div>
+                <div class="filters">
+                    <input type="text" id="inventory-search" placeholder="Search...">
+                    <select id="inventory-status-filter">
+                        <option value="">All Stock Levels</option>
+                        <option value="in_stock">In Stock</option>
+                        <option value="low_stock">Low Stock</option>
+                        <option value="out_of_stock">Out of Stock</option>
+                    </select>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Product</th>
+                                    <th>Current Stock</th>
+                                    <th>Min Level</th>
+                                    <th>Max Level</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table">
+                                <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="inventory-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Page -->
+            <div id="page-sales" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-receipt"></i> Sales History</h1>
+                    <div class="page-actions">
+                        <input type="date" id="sales-start-date">
+                        <input type="date" id="sales-end-date">
+                        <button id="filter-sales-btn" class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="sales-summary">
+                    <div class="summary-item">
+                        <span>Total Sales</span>
+                        <strong id="sales-summary-total">$0.00</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Transactions</span>
+                        <strong id="sales-summary-count">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Average Sale</span>
+                        <strong id="sales-summary-avg">$0.00</strong>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Receipt #</th>
+                                    <th>Date/Time</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table">
+                                <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="sales-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Page -->
+            <div id="page-customers" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-users"></i> Customers</h1>
+                    <div class="page-actions">
+                        <button id="add-customer-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Customer
+                        </button>
+                    </div>
+                </div>
+                <div class="filters">
+                    <input type="text" id="customer-search" placeholder="Search customers...">
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Loyalty Points</th>
+                                    <th>Total Purchases</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table">
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="customers-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suppliers Page -->
+            <div id="page-suppliers" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-truck"></i> Suppliers</h1>
+                    <div class="page-actions">
+                        <button id="add-supplier-btn" class="btn btn-primary manager-only">
+                            <i class="fas fa-plus"></i> Add Supplier
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Products</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suppliers-table">
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="page-reports" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-bar"></i> Reports</h1>
+                </div>
+                <div class="report-filters">
+                    <input type="date" id="report-start-date">
+                    <input type="date" id="report-end-date">
+                    <button id="generate-report-btn" class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div class="reports-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Sales Summary</h2>
+                        </div>
+                        <div class="card-body" id="sales-report">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Top Products</h2>
+                        </div>
+                        <div class="card-body" id="top-products-report">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Payment Methods</h2>
+                        </div>
+                        <div class="card-body" id="payment-report">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Category Performance</h2>
+                        </div>
+                        <div class="card-body" id="category-report">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Page (Admin Only) -->
+            <div id="page-users" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-user-cog"></i> User Management</h1>
+                    <div class="page-actions">
+                        <button id="add-user-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add User
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-cog"></i> Settings</h1>
+                </div>
+                <div class="settings-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Store Information</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="store-settings-form">
+                                <div class="form-group">
+                                    <label>Store Name</label>
+                                    <input type="text" id="setting-store-name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Store Address</label>
+                                    <input type="text" id="setting-store-address">
+                                </div>
+                                <div class="form-group">
+                                    <label>Store Phone</label>
+                                    <input type="text" id="setting-store-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tax Rate (%)</label>
+                                    <input type="number" id="setting-tax-rate" step="0.01" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Receipt Footer</label>
+                                    <textarea id="setting-receipt-footer"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Change Password</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="change-password-form">
+                                <div class="form-group">
+                                    <label>Current Password</label>
+                                    <input type="password" id="current-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" id="new-password" required minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirm Password</label>
+                                    <input type="password" id="confirm-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Change Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Modal Title</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content will be injected -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="modal">
+        <div class="modal-content receipt-content">
+            <div class="modal-header">
+                <h2>Receipt</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="receipt-body">
+                <!-- Receipt content -->
+            </div>
+            <div class="modal-footer">
+                <button id="print-receipt-btn" class="btn btn-primary">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
