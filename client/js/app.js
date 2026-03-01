@@ -177,10 +177,11 @@ const auth = {
 const dashboard = {
     async load() {
         try {
-            const [summary, recentSales, lowStock] = await Promise.all([
+            const [summary, recentSales, lowStock, recentOrders] = await Promise.all([
                 api.get('/dashboard/summary'),
                 api.get('/dashboard/recent-sales?limit=5'),
-                api.get('/dashboard/low-stock')
+                api.get('/dashboard/low-stock'),
+                api.get('/dashboard/recent-orders?limit=5')
             ]);
 
             // Update summary cards
@@ -191,6 +192,12 @@ const dashboard = {
             document.getElementById('low-stock-count').textContent = summary.inventory.lowStock + summary.inventory.outOfStock;
             document.getElementById('monthly-sales').textContent = utils.formatCurrency(summary.sales.month.total);
             document.getElementById('monthly-transactions').textContent = `${summary.sales.month.transactions} transactions`;
+
+            // Update pending orders card
+            const pendingOrdersEl = document.getElementById('pending-orders-count');
+            if (pendingOrdersEl && summary.catalogOrders) {
+                pendingOrdersEl.textContent = summary.catalogOrders.pending || 0;
+            }
 
             // Update recent sales table
             const salesTable = document.getElementById('recent-sales-table');
@@ -226,6 +233,33 @@ const dashboard = {
                 `).join('');
             }
 
+            // Update recent catalog orders table
+            const ordersTable = document.getElementById('recent-orders-table');
+            if (ordersTable) {
+                if (!recentOrders || recentOrders.length === 0) {
+                    ordersTable.innerHTML = '<tr><td colspan="4" class="text-center">No recent orders</td></tr>';
+                } else {
+                    ordersTable.innerHTML = recentOrders.map(order => `
+                        <tr>
+                            <td><a href="#" onclick="orders.viewDetails(${order.id}); return false;">${order.order_number}</a></td>
+                            <td>${order.customer_name || 'Guest'}</td>
+                            <td>${utils.formatCurrency(order.total)}</td>
+                            <td><span class="badge ${this.getOrderStatusBadgeClass(order.status)}">${order.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            // Update sales overview
+            const posMonthlyEl = document.getElementById('pos-monthly-sales');
+            const catalogMonthlyEl = document.getElementById('catalog-monthly-sales');
+            if (posMonthlyEl) {
+                posMonthlyEl.textContent = utils.formatCurrency(summary.sales.month.total);
+            }
+            if (catalogMonthlyEl && summary.catalogOrders) {
+                catalogMonthlyEl.textContent = utils.formatCurrency(summary.catalogOrders.monthTotal);
+            }
+
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -234,7 +268,20 @@ const dashboard = {
             });
         } catch (error) {
             utils.showToast('Failed to load dashboard data', 'error');
+            console.error('Dashboard error:', error);
         }
+    },
+
+    getOrderStatusBadgeClass(status) {
+        const classes = {
+            pending: 'badge-warning',
+            confirmed: 'badge-info',
+            processing: 'badge-primary',
+            shipped: 'badge-primary',
+            delivered: 'badge-success',
+            cancelled: 'badge-danger'
+        };
+        return classes[status] || 'badge-secondary';
     }
 };
 
@@ -255,12 +302,15 @@ const pos = {
     },
 
     async loadProducts() {
+        const grid = document.getElementById('pos-products-grid');
+        grid.innerHTML = '<p class="text-center">Loading products...</p>';
         try {
             const data = await api.get('/products?limit=100');
-            this.products = data.products;
+            this.products = data.products || [];
             this.renderProducts();
         } catch (error) {
             utils.showToast('Failed to load products', 'error');
+            grid.innerHTML = '<p class="text-center text-danger">Failed to load products</p>';
         }
     },
 
@@ -328,15 +378,20 @@ const pos = {
     },
 
     addToCart(productId) {
-        const product = this.products.find(p => p.id === productId);
-        if (!product) return;
+        // Use type coercion (==) to handle both string and number IDs
+        const product = this.products.find(p => p.id == productId);
+        if (!product) {
+            console.error('Product not found:', productId, 'Available products:', this.products.map(p => p.id));
+            utils.showToast('Product not found. Please refresh and try again.', 'error');
+            return;
+        }
 
         if (product.quantity <= 0) {
             utils.showToast('Product is out of stock', 'warning');
             return;
         }
 
-        const existing = state.cart.find(item => item.productId === productId);
+        const existing = state.cart.find(item => item.productId == productId);
         if (existing) {
             if (existing.quantity >= product.quantity) {
                 utils.showToast('Not enough stock', 'warning');
@@ -359,14 +414,14 @@ const pos = {
     },
 
     updateQuantity(productId, delta) {
-        const item = state.cart.find(i => i.productId === productId);
+        const item = state.cart.find(i => i.productId == productId);
         if (!item) return;
 
-        const product = this.products.find(p => p.id === productId);
+        const product = this.products.find(p => p.id == productId);
         const newQty = item.quantity + delta;
 
         if (newQty <= 0) {
-            state.cart = state.cart.filter(i => i.productId !== productId);
+            state.cart = state.cart.filter(i => i.productId != productId);
         } else if (newQty > product.quantity) {
             utils.showToast('Not enough stock', 'warning');
             return;
@@ -379,7 +434,7 @@ const pos = {
     },
 
     removeFromCart(productId) {
-        state.cart = state.cart.filter(i => i.productId !== productId);
+        state.cart = state.cart.filter(i => i.productId != productId);
         this.renderCart();
     },
 
@@ -853,6 +908,151 @@ const products = {
         } catch (error) {
             utils.showToast(error.message, 'error');
         }
+    },
+
+    // Batch import functionality
+    showBatchImportModal() {
+        const modal = document.getElementById('batch-import-modal');
+        modal.classList.add('active');
+
+        // Reset state
+        document.getElementById('batch-file-input').value = '';
+        document.getElementById('selected-file-name').textContent = 'No file selected';
+        document.getElementById('process-import-btn').disabled = true;
+        document.getElementById('import-results').classList.add('hidden');
+
+        // Setup file input
+        const fileInput = document.getElementById('batch-file-input');
+        const uploadArea = document.getElementById('file-upload-area');
+
+        uploadArea.onclick = () => fileInput.click();
+
+        uploadArea.ondragover = (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        };
+
+        uploadArea.ondragleave = () => {
+            uploadArea.classList.remove('dragover');
+        };
+
+        uploadArea.ondrop = (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                this.handleFileSelect(files[0]);
+            }
+        };
+
+        fileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFileSelect(e.target.files[0]);
+            }
+        };
+    },
+
+    handleFileSelect(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['xlsx', 'xls'].includes(ext)) {
+            utils.showToast('Please select an Excel file (.xlsx or .xls)', 'error');
+            return;
+        }
+
+        document.getElementById('selected-file-name').textContent = file.name;
+        document.getElementById('process-import-btn').disabled = false;
+    },
+
+    async downloadTemplate() {
+        try {
+            const response = await fetch('/api/products/template/download', {
+                headers: {
+                    'Authorization': `Bearer ${state.token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to download template');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products_template.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            utils.showToast('Template downloaded successfully', 'success');
+        } catch (error) {
+            utils.showToast(error.message, 'error');
+        }
+    },
+
+    async processBatchImport() {
+        const fileInput = document.getElementById('batch-file-input');
+        if (!fileInput.files.length) {
+            utils.showToast('Please select a file first', 'error');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const processBtn = document.getElementById('process-import-btn');
+        processBtn.disabled = true;
+        processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const response = await fetch('/api/products/batch', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${state.token}`
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            const resultsDiv = document.getElementById('import-results');
+            const summaryDiv = document.getElementById('import-summary');
+            const errorsDiv = document.getElementById('import-errors');
+
+            resultsDiv.classList.remove('hidden');
+
+            summaryDiv.innerHTML = `
+                <div class="import-summary-stats">
+                    <span class="success-count"><i class="fas fa-check-circle"></i> ${result.success} imported</span>
+                    <span class="failed-count"><i class="fas fa-times-circle"></i> ${result.failed} failed</span>
+                </div>
+            `;
+
+            if (result.errors && result.errors.length > 0) {
+                errorsDiv.innerHTML = `
+                    <h4>Errors:</h4>
+                    <ul class="error-list">
+                        ${result.errors.map(e => `<li>Row ${e.row}${e.sku ? ` (${e.sku})` : ''}: ${e.error}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                errorsDiv.innerHTML = '';
+            }
+
+            if (result.success > 0) {
+                utils.showToast(result.message, 'success');
+                this.load(); // Refresh the products list
+            }
+
+        } catch (error) {
+            utils.showToast(error.message, 'error');
+        } finally {
+            processBtn.disabled = false;
+            processBtn.innerHTML = '<i class="fas fa-upload"></i> Process Import';
+        }
     }
 };
 
@@ -1130,6 +1330,613 @@ const sales = {
             `);
         } catch (error) {
             utils.showToast('Failed to load sale details', 'error');
+        }
+    }
+};
+
+// Orders module (Catalog Orders)
+const orders = {
+    currentPage: 1,
+    filters: {
+        status: '',
+        dateFrom: '',
+        dateTo: '',
+        search: ''
+    },
+
+    async init() {
+        await this.loadStats();
+        await this.load();
+        this.setupEventListeners();
+    },
+
+    setupEventListeners() {
+        document.getElementById('filter-orders-btn')?.addEventListener('click', () => {
+            this.filters.status = document.getElementById('orders-status-filter')?.value || '';
+            this.filters.dateFrom = document.getElementById('orders-start-date')?.value || '';
+            this.filters.dateTo = document.getElementById('orders-end-date')?.value || '';
+            this.load(1);
+        });
+
+        document.getElementById('orders-search')?.addEventListener('input', utils.debounce((e) => {
+            this.filters.search = e.target.value;
+            this.load(1);
+        }, 300));
+
+        document.getElementById('orders-status-filter')?.addEventListener('change', (e) => {
+            this.filters.status = e.target.value;
+            this.load(1);
+        });
+    },
+
+    async loadStats() {
+        try {
+            const stats = await api.get('/orders/admin/stats');
+            document.getElementById('orders-pending-count').textContent = stats.pending_orders || 0;
+            document.getElementById('orders-processing-count').textContent = stats.processing_orders || 0;
+            document.getElementById('orders-shipped-count').textContent = stats.shipped_orders || 0;
+            document.getElementById('orders-delivered-count').textContent = stats.delivered_orders || 0;
+            document.getElementById('orders-cancelled-count').textContent = stats.cancelled_orders || 0;
+        } catch (error) {
+            console.error('Failed to load order stats:', error);
+        }
+    },
+
+    async load(page = 1) {
+        try {
+            let url = `/orders/admin/list?page=${page}&limit=20`;
+            if (this.filters.status) url += `&status=${encodeURIComponent(this.filters.status)}`;
+            if (this.filters.dateFrom) url += `&dateFrom=${encodeURIComponent(this.filters.dateFrom)}`;
+            if (this.filters.dateTo) url += `&dateTo=${encodeURIComponent(this.filters.dateTo)}`;
+            if (this.filters.search) url += `&search=${encodeURIComponent(this.filters.search)}`;
+
+            const data = await api.get(url);
+            this.currentPage = data.pagination.page;
+            this.render(data.orders);
+            this.renderPagination(data.pagination);
+        } catch (error) {
+            utils.showToast('Failed to load orders', 'error');
+            console.error('Load orders error:', error);
+        }
+    },
+
+    render(orders) {
+        const tbody = document.getElementById('orders-table');
+        if (!tbody) return;
+
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No orders found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = orders.map(order => {
+            const statusBadge = this.getStatusBadge(order.status);
+            const paymentBadge = this.getPaymentBadge(order.paymentStatus);
+            return `
+                <tr>
+                    <td><strong>${order.orderNumber}</strong></td>
+                    <td>${utils.formatDate(order.createdAt)}</td>
+                    <td>
+                        ${order.customerName || 'Guest'}<br>
+                        <small class="text-muted">${order.customerEmail || ''}</small>
+                    </td>
+                    <td>${order.itemCount} item(s)<br><small class="text-muted">${order.itemsPreview || ''}</small></td>
+                    <td><strong>${utils.formatCurrency(order.total)}</strong></td>
+                    <td>${paymentBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="orders.showDetails(${order.id})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${order.status !== 'cancelled' && order.status !== 'delivered' ? `
+                            <button class="btn btn-sm btn-success" onclick="orders.showStatusModal(${order.id})" title="Update Status">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    },
+
+    getStatusBadge(status) {
+        const statusClasses = {
+            pending: 'badge-warning',
+            confirmed: 'badge-info',
+            processing: 'badge-primary',
+            shipped: 'badge-primary',
+            delivered: 'badge-success',
+            cancelled: 'badge-danger'
+        };
+        return `<span class="badge ${statusClasses[status] || 'badge-secondary'}">${status}</span>`;
+    },
+
+    getPaymentBadge(status) {
+        const statusClasses = {
+            pending: 'badge-warning',
+            paid: 'badge-success',
+            failed: 'badge-danger',
+            refunded: 'badge-info'
+        };
+        return `<span class="badge ${statusClasses[status] || 'badge-secondary'}">${status}</span>`;
+    },
+
+    renderPagination(pagination) {
+        const container = document.getElementById('orders-pagination');
+        if (!container || pagination.totalPages <= 1) {
+            if (container) container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        for (let i = 1; i <= pagination.totalPages; i++) {
+            html += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="orders.load(${i})">${i}</button>`;
+        }
+        container.innerHTML = html;
+    },
+
+    async showDetails(id) {
+        try {
+            const data = await api.get(`/orders/admin/${id}`);
+            const { order, items } = data;
+
+            let itemsHtml = items.map(item => `
+                <tr>
+                    <td>${item.productName}</td>
+                    <td>${item.productSku || '-'}</td>
+                    <td>${item.quantity}</td>
+                    <td>${utils.formatCurrency(item.unitPrice)}</td>
+                    <td>${utils.formatCurrency(item.totalPrice)}</td>
+                </tr>
+            `).join('');
+
+            modal.show(`Order #${order.orderNumber}`, `
+                <div class="order-details">
+                    <div class="order-info-grid">
+                        <div class="info-section">
+                            <h4>Customer Information</h4>
+                            <p><strong>Name:</strong> ${order.customerName || 'Guest'}</p>
+                            <p><strong>Email:</strong> ${order.customerEmail || '-'}</p>
+                            <p><strong>Phone:</strong> ${order.customerPhone || '-'}</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>Order Information</h4>
+                            <p><strong>Order #:</strong> ${order.orderNumber}</p>
+                            <p><strong>Date:</strong> ${utils.formatDate(order.createdAt)}</p>
+                            <p><strong>Status:</strong> ${this.getStatusBadge(order.status)}</p>
+                            <p><strong>Payment:</strong> ${this.getPaymentBadge(order.paymentStatus)}</p>
+                            <p><strong>Method:</strong> ${order.paymentMethod}</p>
+                        </div>
+                    </div>
+                    ${order.shippingAddress ? `
+                        <div class="info-section">
+                            <h4>Shipping Address</h4>
+                            <p>${order.shippingAddress}</p>
+                        </div>
+                    ` : ''}
+                    ${order.notes ? `
+                        <div class="info-section">
+                            <h4>Notes</h4>
+                            <p>${order.notes}</p>
+                        </div>
+                    ` : ''}
+                    <div class="info-section">
+                        <h4>Order Items</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="order-totals">
+                        <p><strong>Subtotal:</strong> ${utils.formatCurrency(order.subtotal)}</p>
+                        <p><strong>Tax:</strong> ${utils.formatCurrency(order.tax)}</p>
+                        ${order.discount > 0 ? `<p><strong>Discount:</strong> -${utils.formatCurrency(order.discount)}</p>` : ''}
+                        <p class="total"><strong>Total:</strong> ${utils.formatCurrency(order.total)}</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    ${order.status !== 'cancelled' && order.status !== 'delivered' ? `
+                        <button class="btn btn-success" onclick="orders.showStatusModal(${order.id}); modal.hide();">
+                            <i class="fas fa-check"></i> Update Status
+                        </button>
+                        <button class="btn btn-danger" onclick="orders.cancelOrder(${order.id}, '${order.orderNumber}'); modal.hide();">
+                            <i class="fas fa-times"></i> Cancel Order
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-secondary modal-close-btn">Close</button>
+                </div>
+            `);
+        } catch (error) {
+            utils.showToast('Failed to load order details', 'error');
+        }
+    },
+
+    async showStatusModal(id) {
+        try {
+            const data = await api.get(`/orders/admin/${id}`);
+            const { order } = data;
+
+            modal.show('Update Order Status', `
+                <form id="order-status-form">
+                    <input type="hidden" id="order-id" value="${id}">
+                    <div class="form-group">
+                        <label>Order Status</label>
+                        <select id="order-status">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Status</label>
+                        <select id="order-payment-status">
+                            <option value="pending" ${order.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="paid" ${order.paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                            <option value="failed" ${order.paymentStatus === 'failed' ? 'selected' : ''}>Failed</option>
+                            <option value="refunded" ${order.paymentStatus === 'refunded' ? 'selected' : ''}>Refunded</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="order-notes" rows="3">${order.notes || ''}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Update Order</button>
+                </form>
+            `);
+
+            document.getElementById('order-status-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.updateStatus();
+            });
+        } catch (error) {
+            utils.showToast('Failed to load order', 'error');
+        }
+    },
+
+    async updateStatus() {
+        const id = document.getElementById('order-id').value;
+        const status = document.getElementById('order-status').value;
+        const paymentStatus = document.getElementById('order-payment-status').value;
+        const notes = document.getElementById('order-notes').value;
+
+        try {
+            await api.patch(`/orders/admin/${id}/status`, { status, paymentStatus, notes });
+            utils.showToast('Order updated successfully', 'success');
+            modal.hide();
+            await this.loadStats();
+            await this.load(this.currentPage);
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to update order', 'error');
+        }
+    },
+
+    async cancelOrder(id, orderNumber) {
+        const reason = prompt('Enter cancellation reason (optional):');
+        if (!confirm(`Are you sure you want to cancel order ${orderNumber}? This will restore inventory.`)) {
+            return;
+        }
+
+        try {
+            const result = await api.post(`/orders/admin/${id}/cancel`, { reason });
+            utils.showToast(`Order cancelled. ${result.restoredItems} items restored to inventory.`, 'success');
+            await this.loadStats();
+            await this.load(this.currentPage);
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to cancel order', 'error');
+        }
+    }
+};
+
+// Orders module (Catalog Orders)
+const orders = {
+    currentPage: 1,
+    filters: {
+        status: '',
+        dateFrom: '',
+        dateTo: '',
+        search: ''
+    },
+
+    async init() {
+        await Promise.all([
+            this.loadStats(),
+            this.load()
+        ]);
+        this.setupEventListeners();
+    },
+
+    setupEventListeners() {
+        document.getElementById('filter-orders-btn')?.addEventListener('click', () => {
+            this.filters.status = document.getElementById('orders-status-filter')?.value || '';
+            this.filters.dateFrom = document.getElementById('orders-start-date')?.value || '';
+            this.filters.dateTo = document.getElementById('orders-end-date')?.value || '';
+            this.load(1);
+        });
+
+        document.getElementById('orders-search')?.addEventListener('input', utils.debounce((e) => {
+            this.filters.search = e.target.value;
+            this.load(1);
+        }, 300));
+
+        document.getElementById('orders-status-filter')?.addEventListener('change', (e) => {
+            this.filters.status = e.target.value;
+            this.load(1);
+        });
+    },
+
+    async loadStats() {
+        try {
+            const stats = await api.get('/orders/admin/stats');
+            document.getElementById('orders-pending-count').textContent = stats.pending_orders || 0;
+            document.getElementById('orders-processing-count').textContent = stats.processing_orders || 0;
+            document.getElementById('orders-shipped-count').textContent = stats.shipped_orders || 0;
+            document.getElementById('orders-delivered-count').textContent = stats.delivered_orders || 0;
+            document.getElementById('orders-cancelled-count').textContent = stats.cancelled_orders || 0;
+        } catch (error) {
+            console.error('Failed to load order stats:', error);
+        }
+    },
+
+    async load(page = 1) {
+        try {
+            let url = `/orders/admin/list?page=${page}&limit=20`;
+            if (this.filters.status) url += `&status=${encodeURIComponent(this.filters.status)}`;
+            if (this.filters.dateFrom) url += `&dateFrom=${encodeURIComponent(this.filters.dateFrom)}`;
+            if (this.filters.dateTo) url += `&dateTo=${encodeURIComponent(this.filters.dateTo)}`;
+            if (this.filters.search) url += `&search=${encodeURIComponent(this.filters.search)}`;
+
+            const data = await api.get(url);
+            this.currentPage = data.pagination.page;
+            this.render(data.orders);
+            this.renderPagination(data.pagination);
+        } catch (error) {
+            utils.showToast('Failed to load orders', 'error');
+            console.error('Load orders error:', error);
+        }
+    },
+
+    render(orders) {
+        const tbody = document.getElementById('orders-table');
+        if (!tbody) return;
+
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No orders found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = orders.map(order => `
+            <tr>
+                <td><strong>${order.orderNumber}</strong></td>
+                <td>${utils.formatDate(order.createdAt)}</td>
+                <td>
+                    ${order.customerName || 'Guest'}
+                    ${order.customerEmail ? `<br><small>${order.customerEmail}</small>` : ''}
+                </td>
+                <td>${order.itemCount} item(s)${order.itemsPreview ? `<br><small>${order.itemsPreview}</small>` : ''}</td>
+                <td>${utils.formatCurrency(order.total)}</td>
+                <td>
+                    <span class="badge ${this.getPaymentBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span>
+                    <br><small>${order.paymentMethod?.replace('_', ' ')}</small>
+                </td>
+                <td><span class="badge ${this.getStatusBadgeClass(order.status)}">${order.status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="orders.viewDetails(${order.id})" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${order.status !== 'cancelled' && order.status !== 'delivered' ? `
+                        <button class="btn btn-sm btn-success" onclick="orders.showStatusModal(${order.id}, '${order.status}', '${order.paymentStatus}')" title="Update Status">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    ` : ''}
+                    ${order.status !== 'cancelled' && order.status !== 'delivered' ? `
+                        <button class="btn btn-sm btn-danger" onclick="orders.confirmCancel(${order.id})" title="Cancel Order">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+    },
+
+    getStatusBadgeClass(status) {
+        const classes = {
+            pending: 'badge-warning',
+            confirmed: 'badge-info',
+            processing: 'badge-primary',
+            shipped: 'badge-primary',
+            delivered: 'badge-success',
+            cancelled: 'badge-danger'
+        };
+        return classes[status] || 'badge-secondary';
+    },
+
+    getPaymentBadgeClass(status) {
+        const classes = {
+            pending: 'badge-warning',
+            paid: 'badge-success',
+            failed: 'badge-danger',
+            refunded: 'badge-info'
+        };
+        return classes[status] || 'badge-secondary';
+    },
+
+    renderPagination(pagination) {
+        const container = document.getElementById('orders-pagination');
+        if (!container || pagination.totalPages <= 1) {
+            if (container) container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        for (let i = 1; i <= pagination.totalPages; i++) {
+            html += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="orders.load(${i})">${i}</button>`;
+        }
+        container.innerHTML = html;
+    },
+
+    async viewDetails(id) {
+        try {
+            const data = await api.get(`/orders/admin/${id}`);
+
+            modal.show(`Order ${data.order.orderNumber}`, `
+                <div class="order-details">
+                    <div class="order-info-grid">
+                        <div class="info-section">
+                            <h4>Customer Information</h4>
+                            <p><strong>Name:</strong> ${data.order.customerName || 'Guest'}</p>
+                            <p><strong>Email:</strong> ${data.order.customerEmail || '-'}</p>
+                            <p><strong>Phone:</strong> ${data.order.customerPhone || '-'}</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>Order Information</h4>
+                            <p><strong>Order #:</strong> ${data.order.orderNumber}</p>
+                            <p><strong>Date:</strong> ${utils.formatDate(data.order.createdAt)}</p>
+                            <p><strong>Status:</strong> <span class="badge ${this.getStatusBadgeClass(data.order.status)}">${data.order.status}</span></p>
+                            <p><strong>Payment:</strong> <span class="badge ${this.getPaymentBadgeClass(data.order.paymentStatus)}">${data.order.paymentStatus}</span></p>
+                            <p><strong>Method:</strong> ${data.order.paymentMethod?.replace('_', ' ')}</p>
+                        </div>
+                    </div>
+                    ${data.order.shippingAddress ? `
+                        <div class="info-section">
+                            <h4>Shipping Address</h4>
+                            <p>${data.order.shippingAddress}</p>
+                        </div>
+                    ` : ''}
+                    <div class="info-section">
+                        <h4>Order Items</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.items.map(item => `
+                                    <tr>
+                                        <td>${item.productName}</td>
+                                        <td>${item.productSku || '-'}</td>
+                                        <td>${utils.formatCurrency(item.unitPrice)}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${utils.formatCurrency(item.totalPrice)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="order-totals">
+                        <p><strong>Subtotal:</strong> ${utils.formatCurrency(data.order.subtotal)}</p>
+                        <p><strong>Tax:</strong> ${utils.formatCurrency(data.order.tax)}</p>
+                        ${data.order.discount ? `<p><strong>Discount:</strong> -${utils.formatCurrency(data.order.discount)}</p>` : ''}
+                        <p class="total"><strong>Total:</strong> ${utils.formatCurrency(data.order.total)}</p>
+                    </div>
+                    ${data.order.notes ? `
+                        <div class="info-section">
+                            <h4>Notes</h4>
+                            <p>${data.order.notes}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `);
+        } catch (error) {
+            utils.showToast('Failed to load order details', 'error');
+        }
+    },
+
+    showStatusModal(id, currentStatus, currentPaymentStatus) {
+        modal.show('Update Order Status', `
+            <form id="order-status-form">
+                <input type="hidden" id="order-id" value="${id}">
+                <div class="form-group">
+                    <label>Order Status</label>
+                    <select id="order-status">
+                        <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="confirmed" ${currentStatus === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                        <option value="processing" ${currentStatus === 'processing' ? 'selected' : ''}>Processing</option>
+                        <option value="shipped" ${currentStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                        <option value="delivered" ${currentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Status</label>
+                    <select id="order-payment-status">
+                        <option value="pending" ${currentPaymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="paid" ${currentPaymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                        <option value="failed" ${currentPaymentStatus === 'failed' ? 'selected' : ''}>Failed</option>
+                        <option value="refunded" ${currentPaymentStatus === 'refunded' ? 'selected' : ''}>Refunded</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="order-notes" placeholder="Add notes..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+            </form>
+        `);
+
+        document.getElementById('order-status-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.updateStatus(
+                parseInt(document.getElementById('order-id').value),
+                document.getElementById('order-status').value,
+                document.getElementById('order-payment-status').value,
+                document.getElementById('order-notes').value
+            );
+        });
+    },
+
+    async updateStatus(id, status, paymentStatus, notes) {
+        try {
+            await api.patch(`/orders/admin/${id}/status`, { status, paymentStatus, notes });
+            utils.showToast('Order status updated', 'success');
+            modal.hide();
+            await Promise.all([this.loadStats(), this.load(this.currentPage)]);
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to update order', 'error');
+        }
+    },
+
+    confirmCancel(id) {
+        modal.show('Cancel Order', `
+            <div class="warning-message">
+                <p><i class="fas fa-exclamation-triangle"></i> Are you sure you want to cancel this order?</p>
+                <p>This will restore the inventory for all items in this order.</p>
+            </div>
+            <div class="form-group">
+                <label>Reason for cancellation:</label>
+                <textarea id="cancel-reason" placeholder="Enter reason..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="modal.hide()">No, Keep Order</button>
+                <button class="btn btn-danger" onclick="orders.cancelOrder(${id})">Yes, Cancel Order</button>
+            </div>
+        `);
+    },
+
+    async cancelOrder(id) {
+        try {
+            const reason = document.getElementById('cancel-reason')?.value || '';
+            const result = await api.post(`/orders/admin/${id}/cancel`, { reason });
+            utils.showToast(`Order cancelled. ${result.restoredItems} items restored to inventory.`, 'success');
+            modal.hide();
+            await Promise.all([this.loadStats(), this.load(this.currentPage)]);
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to cancel order', 'error');
         }
     }
 };
@@ -1796,6 +2603,9 @@ function navigateTo(page) {
         case 'sales':
             sales.load();
             break;
+        case 'orders':
+            orders.init();
+            break;
         case 'customers':
             customers.load();
             break;
@@ -1878,6 +2688,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('add-customer-btn')?.addEventListener('click', () => customers.showAddModal());
     document.getElementById('add-supplier-btn')?.addEventListener('click', () => suppliers.showAddModal());
     document.getElementById('add-user-btn')?.addEventListener('click', () => users.showAddModal());
+
+    // Batch import buttons
+    document.getElementById('batch-import-btn')?.addEventListener('click', () => products.showBatchImportModal());
+    document.getElementById('download-template-btn')?.addEventListener('click', () => products.downloadTemplate());
+    document.getElementById('process-import-btn')?.addEventListener('click', () => products.processBatchImport());
 
     // Filters
     document.getElementById('product-search')?.addEventListener('input', utils.debounce(() => products.load(1), 300));

@@ -18,6 +18,8 @@ const reportRoutes = require('./routes/reports');
 const userRoutes = require('./routes/users');
 const dashboardRoutes = require('./routes/dashboard');
 const settingsRoutes = require('./routes/settings');
+const catalogRoutes = require('./routes/catalog');
+const orderRoutes = require('./routes/orders');
 
 const app = express();
 
@@ -28,7 +30,7 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
         }
     }
 }));
@@ -61,6 +63,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files
 app.use(express.static(path.join(__dirname, '../client')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -74,8 +77,14 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/catalog', catalogRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Serve frontend for all non-API routes
+app.get('/catalog', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/catalog.html'));
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/index.html'));
 });

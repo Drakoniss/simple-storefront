@@ -67,6 +67,10 @@
                     <i class="fas fa-receipt"></i>
                     <span>Sales</span>
                 </li>
+                <li class="nav-item" data-page="orders">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </li>
                 <li class="nav-item" data-page="customers">
                     <i class="fas fa-users"></i>
                     <span>Customers</span>
@@ -150,6 +154,16 @@
                             <span id="monthly-transactions">0 transactions</span>
                         </div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orders">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Pending Orders</h3>
+                            <p id="pending-orders-count">0</p>
+                            <span id="pending-orders-label">Catalog orders</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="dashboard-row">
                     <div class="card">
@@ -190,6 +204,54 @@
                                     <tr><td colspan="4" class="text-center">Loading...</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-row">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-shopping-bag"></i> Recent Catalog Orders</h2>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders-table">
+                                    <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                            <div style="margin-top: 0.5rem;">
+                                <a href="#" onclick="navigateTo('orders'); return false;" class="btn btn-sm btn-secondary">View All Orders</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-chart-pie"></i> Quick Stats</h2>
+                        </div>
+                        <div class="card-body" id="quick-stats">
+                            <div class="quick-stat">
+                                <span>Processing Orders</span>
+                                <strong id="processing-orders-count">0</strong>
+                            </div>
+                            <div class="quick-stat">
+                                <span>Pending Payments</span>
+                                <strong id="pending-payments-count">0</strong>
+                            </div>
+                            <div class="quick-stat">
+                                <span>Today's Catalog Sales</span>
+                                <strong id="today-catalog-sales">$0.00</strong>
+                            </div>
+                            <div class="quick-stat">
+                                <span>Monthly Catalog Sales</span>
+                                <strong id="month-catalog-sales">$0.00</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -280,6 +342,9 @@
                 <div class="page-header">
                     <h1><i class="fas fa-boxes"></i> Products</h1>
                     <div class="page-actions">
+                        <button id="batch-import-btn" class="btn btn-secondary manager-only">
+                            <i class="fas fa-file-excel"></i> Batch Import
+                        </button>
                         <button id="add-product-btn" class="btn btn-primary manager-only">
                             <i class="fas fa-plus"></i> Add Product
                         </button>
@@ -434,6 +499,76 @@
                             </tbody>
                         </table>
                         <div id="sales-pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div id="page-orders" class="page">
+                <div class="page-header">
+                    <h1><i class="fas fa-shopping-bag"></i> Catalog Orders</h1>
+                    <div class="page-actions">
+                        <input type="date" id="orders-start-date">
+                        <input type="date" id="orders-end-date">
+                        <select id="orders-status-filter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <button id="filter-orders-btn" class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="orders-summary">
+                    <div class="summary-item">
+                        <span>Pending</span>
+                        <strong id="orders-pending-count">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Processing</span>
+                        <strong id="orders-processing-count">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Shipped</span>
+                        <strong id="orders-shipped-count">0</strong>
+                    </div>
+                    <div class="summary-item success">
+                        <span>Delivered</span>
+                        <strong id="orders-delivered-count">0</strong>
+                    </div>
+                    <div class="summary-item danger">
+                        <span>Cancelled</span>
+                        <strong id="orders-cancelled-count">0</strong>
+                    </div>
+                </div>
+                <div class="filters">
+                    <input type="text" id="orders-search" placeholder="Search by order #, customer name or email...">
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div id="orders-pagination" class="pagination"></div>
                     </div>
                 </div>
             </div>
@@ -660,6 +795,57 @@
         </div>
     </div>
 
+    <!-- Batch Import Modal -->
+    <div id="batch-import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-excel"></i> Batch Import Products</h2>
+                <button class="modal-close" onclick="document.getElementById('batch-import-modal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="batch-import-steps">
+                    <div class="import-step">
+                        <h3>Step 1: Download Template</h3>
+                        <p>Download the Excel template with the correct format.</p>
+                        <button id="download-template-btn" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Download Template
+                        </button>
+                    </div>
+                    <div class="import-step">
+                        <h3>Step 2: Fill Template</h3>
+                        <p>Fill in the template with your product data. Required fields are marked with *.</p>
+                        <ul>
+                            <li><strong>SKU*</strong> - Unique product identifier</li>
+                            <li><strong>Name*</strong> - Product name</li>
+                            <li><strong>Cost Price*</strong> - Your cost</li>
+                            <li><strong>Selling Price*</strong> - Customer price</li>
+                            <li><strong>Category</strong> - Category name (must match existing)</li>
+                            <li><strong>Supplier</strong> - Supplier name (must match existing)</li>
+                        </ul>
+                    </div>
+                    <div class="import-step">
+                        <h3>Step 3: Upload File</h3>
+                        <p>Upload the filled Excel file (.xlsx or .xls)</p>
+                        <div class="file-upload-area" id="file-upload-area">
+                            <input type="file" id="batch-file-input" accept=".xlsx,.xls" hidden>
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click or drag file here</p>
+                            <span id="selected-file-name">No file selected</span>
+                        </div>
+                        <button id="process-import-btn" class="btn btn-primary" disabled>
+                            <i class="fas fa-upload"></i> Process Import
+                        </button>
+                    </div>
+                </div>
+                <div id="import-results" class="import-results hidden">
+                    <h3>Import Results</h3>
+                    <div id="import-summary"></div>
+                    <div id="import-errors" class="import-errors"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Receipt Modal -->
     <div id="receipt-modal" class="modal">
         <div class="modal-content receipt-content">
@@ -675,6 +861,51 @@
                     <i class="fas fa-print"></i> Print
                 </button>
                 <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Import Modal -->
+    <div id="batch-import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-excel"></i> Batch Product Import</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="batch-import-instructions">
+                    <p>Import multiple products at once using an Excel file.</p>
+                    <ol>
+                        <li>Download the template file</li>
+                        <li>Fill in your product data</li>
+                        <li>Upload the completed file</li>
+                    </ol>
+                    <p><strong>Required fields:</strong> SKU, Name, Cost Price, Selling Price</p>
+                </div>
+                <div class="batch-import-actions">
+                    <button id="download-template-btn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download Template
+                    </button>
+                </div>
+                <div class="batch-import-upload">
+                    <label for="batch-file-input" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Click to select Excel file</span>
+                        <input type="file" id="batch-file-input" accept=".xlsx,.xls" hidden>
+                    </label>
+                    <div id="batch-file-name" class="file-name"></div>
+                </div>
+                <div id="batch-import-results" class="batch-import-results hidden">
+                    <h4>Import Results</h4>
+                    <div id="batch-import-summary"></div>
+                    <div id="batch-import-errors"></div>
+                </div>
+                <div class="modal-actions">
+                    <button id="batch-import-submit" class="btn btn-primary" disabled>
+                        <i class="fas fa-upload"></i> Import Products
+                    </button>
+                    <button class="btn btn-secondary modal-close-btn">Cancel</button>
+                </div>
             </div>
         </div>
     </div>

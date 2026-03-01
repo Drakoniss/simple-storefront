@@ -239,6 +239,44 @@ async function initializeDatabase() {
         )
     `);
 
+    // Orders table for public catalog checkout
+    await dbRun(`
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_number TEXT UNIQUE NOT NULL,
+            customer_email TEXT,
+            customer_phone TEXT,
+            customer_name TEXT,
+            subtotal REAL NOT NULL,
+            tax REAL DEFAULT 0,
+            shipping REAL DEFAULT 0,
+            discount REAL DEFAULT 0,
+            total REAL NOT NULL,
+            payment_method TEXT NOT NULL,
+            payment_status TEXT DEFAULT 'pending',
+            shipping_address TEXT,
+            notes TEXT,
+            status TEXT DEFAULT 'pending',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Order items table
+    await dbRun(`
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,
+            product_name TEXT NOT NULL,
+            quantity INTEGER NOT NULL,
+            unit_price REAL NOT NULL,
+            total_price REAL NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id),
+            FOREIGN KEY (product_id) REFERENCES products(id)
+        )
+    `);
+
     // Settings table
     await dbRun(`
         CREATE TABLE IF NOT EXISTS settings (

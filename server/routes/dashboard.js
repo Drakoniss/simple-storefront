@@ -6,62 +6,75 @@ const { auth } = require('../middleware/auth');
 // Dashboard summary
 router.get('/summary', auth, async (req, res) => {
     try {
-        // Today's sales
+        // Today's sales (POS)
         const todaySales = await dbGet(
-            `SELECT 
+            `SELECT
              COUNT(*) as transactions,
              COALESCE(SUM(total), 0) as total,
              COALESCE(AVG(total), 0) as average
-             FROM sales 
-             WHERE date(created_at) = date('now') 
+             FROM sales
+             WHERE date(created_at) = date('now')
              AND payment_status != 'voided'`
         );
 
         // This week's sales
         const weekSales = await dbGet(
-            `SELECT 
+            `SELECT
              COUNT(*) as transactions,
              COALESCE(SUM(total), 0) as total
-             FROM sales 
+             FROM sales
              WHERE date(created_at) >= date('now', '-7 days')
              AND payment_status != 'voided'`
         );
 
         // This month's sales
         const monthSales = await dbGet(
-            `SELECT 
+            `SELECT
              COUNT(*) as transactions,
              COALESCE(SUM(total), 0) as total
-             FROM sales 
+             FROM sales
              WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
              AND payment_status != 'voided'`
         );
 
         // Inventory alerts
         const lowStock = await dbGet(
-            `SELECT COUNT(*) as count FROM products 
-             WHERE is_active = 1 
-             AND quantity <= min_stock_level 
+            `SELECT COUNT(*) as count FROM products
+             WHERE is_active = 1
+             AND quantity <= min_stock_level
              AND quantity > 0`
         );
 
         const outOfStock = await dbGet(
-            `SELECT COUNT(*) as count FROM products 
+            `SELECT COUNT(*) as count FROM products
              WHERE is_active = 1 AND quantity = 0`
         );
 
         // Inventory value
         const inventoryValue = await dbGet(
-            `SELECT 
+            `SELECT
              COUNT(*) as total_products,
              SUM(quantity) as total_units,
              SUM(quantity * cost_price) as total_value
              FROM products WHERE is_active = 1`
         );
 
-        // Recent transactions count
-        const pendingOrders = await dbGet(
+        // Pending purchase orders
+        const pendingPurchaseOrders = await dbGet(
             `SELECT COUNT(*) as count FROM purchase_orders WHERE status = 'pending'`
+        );
+
+        // Catalog orders stats
+        const catalogOrders = await dbGet(
+            `SELECT
+             COUNT(*) as total_orders,
+             COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_orders,
+             COALESCE(SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END), 0) as processing_orders,
+             COALESCE(SUM(CASE WHEN payment_status = 'pending' THEN 1 ELSE 0 END), 0) as pending_payment_count,
+             COALESCE(SUM(CASE WHEN date(created_at) = date('now') THEN total ELSE 0 END), 0) as today_total,
+             COALESCE(SUM(CASE WHEN strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now') THEN total ELSE 0 END), 0) as month_total
+             FROM orders
+             WHERE status != 'cancelled'`
         );
 
         res.json({
@@ -77,8 +90,16 @@ router.get('/summary', auth, async (req, res) => {
                 totalUnits: inventoryValue.total_units,
                 totalValue: inventoryValue.total_value
             },
-            orders: {
-                pending: pendingOrders.count
+            purchaseOrders: {
+                pending: pendingPurchaseOrders.count
+            },
+            catalogOrders: {
+                total: catalogOrders.total_orders || 0,
+                pending: catalogOrders.pending_orders || 0,
+                processing: catalogOrders.processing_orders || 0,
+                pendingPayment: catalogOrders.pending_payment_count || 0,
+                todayTotal: catalogOrders.today_total || 0,
+                monthTotal: catalogOrders.month_total || 0
             }
         });
     } catch (error) {
@@ -282,6 +303,28 @@ router.get('/staff-performance', auth, async (req, res) => {
         res.json(performance);
     } catch (error) {
         console.error('Staff performance error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Recent catalog orders
+router.get('/recent-orders', auth, async (req, res) => {
+    try {
+        const { limit = 5 } = req.query;
+
+        const orders = await dbAll(
+            `SELECT o.id, o.order_number, o.customer_name, o.total, o.payment_method,
+                    o.payment_status, o.status, o.created_at,
+                    (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
+             FROM orders o
+             ORDER BY o.created_at DESC
+             LIMIT ?`,
+            [parseInt(limit)]
+        );
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Recent orders error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

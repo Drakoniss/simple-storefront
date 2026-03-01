@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse our product catalog and shop online">
+    <title>Catalog - StoreFront</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/catalog.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="catalog-header">
+        <div class="header-content">
+            <a href="catalog.html" class="logo">
+                <i class="fas fa-store"></i>
+                <span>StoreFront</span>
+            </a>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search products...">
+            </div>
+            <button class="cart-btn" id="cart-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="catalog-main">
+        <!-- Sidebar -->
+        <aside class="catalog-sidebar">
+            <h3><i class="fas fa-filter"></i> Categories</h3>
+            <ul class="category-list" id="category-list">
+                <li class="category-item active" data-category="">All Products</li>
+            </ul>
+        </aside>
+
+        <!-- Products Grid -->
+        <section class="catalog-products">
+            <div class="products-header">
+                <h2 id="products-title">All Products</h2>
+                <span id="products-count">0 products</span>
+            </div>
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded here -->
+                <div class="loading">Loading products...</div>
+            </div>
+            <div class="load-more" id="load-more-container">
+                <button class="btn btn-secondary" id="load-more-btn" style="display:none;">
+                    Load More Products
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
+            <button class="close-cart" id="close-cart-btn">&times;</button>
+        </div>
+        <div class="cart-body" id="cart-body">
+            <div class="cart-empty">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cart-footer" style="display: none;">
+            <div class="cart-totals">
+                <div class="cart-row">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">$0.00</span>
+                </div>
+                <div class="cart-row">
+                    <span>Tax:</span>
+                    <span id="cart-tax">$0.00</span>
+                </div>
+                <div class="cart-row total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block" id="checkout-btn">
+                <i class="fas fa-credit-card"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" id="cart-overlay"></div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content product-modal">
+            <button class="modal-close" id="product-modal-close">&times;</button>
+            <div class="product-detail">
+                <div class="product-image" id="product-image">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="product-info">
+                    <h2 id="product-name">Product Name</h2>
+                    <p class="product-category" id="product-category"></p>
+                    <p class="product-description" id="product-description">Product description goes here...</p>
+                    <div class="product-price" id="product-price">$0.00</div>
+                    <div class="product-stock" id="product-stock"></div>
+                    <div class="product-actions">
+                        <div class="quantity-selector">
+                            <button class="qty-btn" id="qty-minus"><i class="fas fa-minus"></i></button>
+                            <input type="number" id="product-qty" value="1" min="1" max="99">
+                            <button class="qty-btn" id="qty-plus"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <button class="btn btn-primary" id="add-to-cart-btn">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content checkout-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-credit-card"></i> Checkout</h2>
+                <button class="modal-close" id="checkout-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkout-form">
+                    <div class="form-section">
+                        <h3>Customer Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-name">Name</label>
+                                <input type="text" id="customer-name" name="customerName" placeholder="Your name">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-email">Email *</label>
+                                <input type="email" id="customer-email" name="customerEmail" required placeholder="your@email.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-phone">Phone</label>
+                            <input type="tel" id="customer-phone" name="customerPhone" placeholder="+1 234 567 8900">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Shipping Address</h3>
+                        <div class="form-group">
+                            <label for="shipping-address">Address</label>
+                            <textarea id="shipping-address" name="shippingAddress" rows="3" placeholder="Full shipping address"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Payment Method</h3>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="cash_on_delivery" checked>
+                                <span class="payment-label">
+                                    <i class="fas fa-money-bill"></i>
+                                    <span>Cash on Delivery</span>
+                                </span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="bank_transfer">
+                                <span class="payment-label">
+                                    <i class="fas fa-university"></i>
+                                    <span>Bank Transfer</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Order Summary</h3>
+                        <div class="order-summary" id="order-summary">
+                            <!-- Order items will be listed here -->
+                        </div>
+                        <div class="order-totals">
+                            <div class="order-row">
+                                <span>Subtotal:</span>
+                                <span id="order-subtotal">$0.00</span>
+                            </div>
+                            <div class="order-row">
+                                <span>Tax:</span>
+                                <span id="order-tax">$0.00</span>
+                            </div>
+                            <div class="order-row total">
+                                <span>Total:</span>
+                                <span id="order-total">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="order-notes">Order Notes (Optional)</label>
+                        <textarea id="order-notes" name="notes" rows="2" placeholder="Special instructions..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="place-order-btn">
+                        <i class="fas fa-check"></i> Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal" id="confirmation-modal">
+        <div class="modal-content confirmation-modal">
+            <div class="confirmation-content">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Order Placed Successfully!</h2>
+                <p>Your order has been received.</p>
+                <div class="order-number">
+                    Order Number: <strong id="confirmation-order-number"></strong>
+                </div>
+                <p class="confirmation-email">A confirmation email will be sent to: <strong id="confirmation-email"></strong></p>
+                <div class="confirmation-actions">
+                    <button class="btn btn-primary" id="continue-shopping-btn">
+                        <i class="fas fa-shopping-bag"></i> Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="js/catalog.js"></script>
+</body>
+</html>
