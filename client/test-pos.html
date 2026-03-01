@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>POS Cart Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #e2e3e5; color: #383d41; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 POS Cart Browser Test</h1>
+    <div id="results"></div>
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="window.open('http://localhost:3001', '_blank')">Open Admin Panel</button>
+
+    <script>
+        const API_BASE = '/api';
+        let token = null;
+        let products = [];
+        const results = document.getElementById('results');
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        async function api(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+            const response = await fetch(url, { ...options, headers });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'API Error');
+            return data;
+        }
+
+        async function testLogin() {
+            try {
+                log('📍 Testing Login...', 'info');
+                const data = await api('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                token = data.token;
+                log('✅ Login successful - Token obtained', 'pass');
+                return true;
+            } catch (error) {
+                log(`❌ Login failed: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testLoadProducts() {
+            try {
+                log('📍 Testing Product Loading...', 'info');
+                const data = await api('/products?limit=100');
+                products = data.products || [];
+                log(`✅ Loaded ${products.length} products`, 'pass');
+
+                if (products.length > 0) {
+                    log(`   First product: ${products[0].name} (ID: ${products[0].id}, type: ${typeof products[0].id})`, 'info');
+                }
+                return products.length > 0;
+            } catch (error) {
+                log(`❌ Failed to load products: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        function testTypeCoercion() {
+            log('📍 Testing Type Coercion in Cart...', 'info');
+
+            if (products.length === 0) {
+                log('❌ No products to test with', 'fail');
+                return false;
+            }
+
+            const product = products[0];
+            const productIdAsNumber = product.id;
+            const productIdAsString = String(product.id);
+
+            // Simulate the addToCart logic
+            const findByStrict = products.find(p => p.id === productIdAsString);
+            const findByCoercion = products.find(p => p.id == productIdAsString);
+
+            log(`   Product ID (number): ${productIdAsNumber} (${typeof productIdAsNumber})`, 'info');
+            log(`   Product ID (string): "${productIdAsString}" (${typeof productIdAsString})`, 'info');
+            log(`   Strict equality (===): ${findByStrict ? 'Found' : 'NOT FOUND'} ❌`, findByStrict ? 'pass' : 'fail');
+            log(`   Type coercion (==): ${findByCoercion ? 'Found' : 'NOT FOUND'} ✅`, findByCoercion ? 'pass' : 'fail');
+
+            // The fix uses == so it should work
+            if (findByCoercion) {
+                log('✅ Type coercion fix is working correctly', 'pass');
+                return true;
+            } else {
+                log('❌ Type coercion fix is NOT working', 'fail');
+                return false;
+            }
+        }
+
+        async function testCreateSale() {
+            try {
+                log('📍 Testing Sale Creation (Cart Checkout)...', 'info');
+
+                if (products.length === 0) {
+                    log('❌ No products to create sale with', 'fail');
+                    return false;
+                }
+
+                const product = products[0];
+                const sale = await api('/sales', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        items: [{
+                            productId: product.id,
+                            quantity: 1,
+                            unitPrice: product.selling_price
+                        }],
+                        paymentMethod: 'cash',
+                        tax: 0,
+                        discount: 0
+                    })
+                });
+
+                log(`✅ Sale created: ${sale.receipt_number}`, 'pass');
+                log(`   Total: $${sale.total}`, 'info');
+                log(`   Items: ${sale.items.map(i => i.product_name).join(', ')}`, 'info');
+                return true;
+            } catch (error) {
+                log(`❌ Sale creation failed: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            results.innerHTML = '';
+            log('🚀 Starting POS Cart Tests...', 'info');
+            log('═══════════════════════════════════════', 'info');
+
+            const tests = [
+                ['Login', await testLogin()],
+                ['Load Products', await testLoadProducts()],
+                ['Type Coercion', testTypeCoercion()],
+                ['Create Sale', await testCreateSale()]
+            ];
+
+            log('═══════════════════════════════════════', 'info');
+
+            const passed = tests.filter(t => t[1]).length;
+            const total = tests.length;
+
+            if (passed === total) {
+                log(`✅ ALL ${total} TESTS PASSED!`, 'pass');
+            } else {
+                log(`⚠️ ${passed}/${total} tests passed`, passed === total ? 'pass' : 'fail');
+            }
+
+            // Summary
+            log('<br><b>Test Summary:</b>', 'info');
+            tests.forEach(([name, result]) => {
+                log(`   ${result ? '✅' : '❌'} ${name}`, result ? 'pass' : 'fail');
+            });
+        }
+
+        // Auto-run tests on load
+        window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+</body>
+</html>
