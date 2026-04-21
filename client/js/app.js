@@ -2259,180 +2259,264 @@ const help = {
     content: {
         general: `
             <section id="help-general" class="help-section">
-                <h2><i class="fas fa-info-circle"></i> Información General</h2>
+                <h2><span class="section-icon section-icon-general"><i class="fas fa-info-circle"></i></span> Información General</h2>
+
+                <div class="tip-box"><i class="fas fa-lightbulb"></i> <strong>Tip - Inicio Rápido:</strong> Para comenzar, inicia sesión con admin / admin123, luego explora el Dashboard para ver métricas del negocio.</div>
 
                 <h3>Acerca de StoreFront</h3>
                 <p>StoreFront es un sistema completo de gestión de inventario y punto de venta (POS) diseñado para pequeños y medianos negocios.</p>
 
                 <h3>Requisitos del Sistema</h3>
-                <ul>
-                    <li>Navegador web moderno (Chrome, Firefox, Edge, Safari)</li>
-                    <li>JavaScript habilitado</li>
+                <ul class="system-requirements">
+                    <li><span class="status-success"><i class="fas fa-check-circle"></i> Navegador web moderno</span> (Chrome, Firefox, Edge, Safari)</li>
+                    <li><span class="status-success"><i class="fas fa-check-circle"></i> JavaScript habilitado</span></li>
+                    <li><span class="status-success"><i class="fas fa-check-circle"></i> Conexión a internet</span></li>
                 </ul>
 
                 <h3>Inicio de Sesión</h3>
-                <p>Credenciales por defecto: admin / admin123</p>
+                <p>Credenciales por defecto: <code>admin / admin123</code></p>
 
                 <h3>Roles de Usuario</h3>
-                <ul>
-                    <li><strong>Admin:</strong> Acceso completo</li>
-                    <li><strong>Manager:</strong> Gestión de productos, inventario, reportes</li>
-                    <li><strong>Cashier:</strong> POS y visualización</li>
-                    <li><strong>Staff:</strong> Solo visualización</li>
+                <div class="info-box"><i class="fas fa-info-circle"></i> Los roles determinan qué funciones puede acceder cada usuario en el sistema.</div>
+                <ul class="roles-list">
+                    <li><span class="role-badge role-admin"><i class="fas fa-crown"></i> Admin:</span> Acceso completo a todas las funciones del sistema</li>
+                    <li><span class="role-badge role-manager"><i class="fas fa-user-tie"></i> Manager:</span> Gestión de productos, inventario, reportes</li>
+                    <li><span class="role-badge role-cashier"><i class="fas fa-cash-register"></i> Cashier:</span> POS y visualización de datos</li>
+                    <li><span class="role-badge role-staff"><i class="fas fa-user"></i> Staff:</span> Solo visualización de información</li>
                 </ul>
             </section>
         `,
 
         modules: `
             <section id="help-modules" class="help-section">
-                <h2><i class="fas fa-th-large"></i> Módulos del Sistema</h2>
+                <h2><span class="section-icon section-icon-modules"><i class="fas fa-th-large"></i></span> Módulos del Sistema</h2>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-tachometer-alt"></i> Dashboard</h4>
+                <div class="tip-box"><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Los módulos más utilizados son POS, Products e Inventory. Domina estos primero para operaciones diarias.</div>
+
+                <div class="module-card module-dashboard">
+                    <h4><span class="module-icon module-icon-dashboard"><i class="fas fa-tachometer-alt"></i></span> Dashboard</h4>
                     <p>Panel principal con métricas del negocio.</p>
                     <ul class="module-features">
-                        <li>Ventas del día y mes</li>
-                        <li>Alertas de stock bajo</li>
-                        <li>Órdenes recientes</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Ventas del día y mes</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Alertas de stock bajo</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Órdenes recientes</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-cash-register"></i> Point of Sale (POS)</h4>
+                <div class="module-card module-pos">
+                    <h4><span class="module-icon module-icon-pos"><i class="fas fa-cash-register"></i></span> Point of Sale (POS)</h4>
                     <p>Sistema de punto de venta.</p>
                     <ul class="module-features">
-                        <li>Búsqueda de productos</li>
-                        <li>Métodos de pago: efectivo, tarjeta, móvil</li>
-                        <li>Generación de recibos</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Búsqueda de productos</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Métodos de pago: efectivo, tarjeta, móvil</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Generación de recibos</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-boxes"></i> Products</h4>
+                <div class="module-card module-products">
+                    <h4><span class="module-icon module-icon-products"><i class="fas fa-boxes"></i></span> Products</h4>
                     <p>Gestión del catálogo de productos.</p>
                     <ul class="module-features">
-                        <li>Crear, editar productos</li>
-                        <li>Importación masiva desde Excel</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Crear, editar productos</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Importación masiva desde Excel</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-clipboard-list"></i> Inventory</h4>
+                <div class="module-card module-inventory">
+                    <h4><span class="module-icon module-icon-inventory"><i class="fas fa-clipboard-list"></i></span> Inventory</h4>
                     <p>Control de inventario.</p>
                     <ul class="module-features">
-                        <li>Ajustes manuales de stock</li>
-                        <li>Historial de transacciones</li>
-                        <li>Alertas de stock bajo</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Ajustes manuales de stock</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Historial de transacciones</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Alertas de stock bajo</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-receipt"></i> Sales</h4>
+                <div class="module-card module-sales">
+                    <h4><span class="module-icon module-icon-sales"><i class="fas fa-receipt"></i></span> Sales</h4>
                     <p>Historial de transacciones.</p>
                     <ul class="module-features">
-                        <li>Lista con filtros por fecha</li>
-                        <li>Ver e imprimir recibos</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Lista con filtros por fecha</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Ver e imprimir recibos</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-shopping-bag"></i> Orders</h4>
+                <div class="module-card module-orders">
+                    <h4><span class="module-icon module-icon-orders"><i class="fas fa-shopping-bag"></i></span> Orders</h4>
                     <p>Órdenes del catálogo público.</p>
                     <ul class="module-features">
-                        <li>Actualización de estados</li>
-                        <li>Cancelación con restauración de inventario</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Actualización de estados</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Cancelación con restauración de inventario</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-users"></i> Customers</h4>
+                <div class="module-card module-customers">
+                    <h4><span class="module-icon module-icon-customers"><i class="fas fa-users"></i></span> Customers</h4>
                     <p>Base de datos de clientes.</p>
                     <ul class="module-features">
-                        <li>Puntos de lealtad</li>
-                        <li>Historial de compras</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Puntos de lealtad</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Historial de compras</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-truck"></i> Suppliers</h4>
+                <div class="module-card module-suppliers">
+                    <h4><span class="module-icon module-icon-suppliers"><i class="fas fa-truck"></i></span> Suppliers</h4>
                     <p>Gestión de proveedores.</p>
+                    <ul class="module-features">
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Registro de proveedores</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Información de contacto</li>
+                    </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-chart-bar"></i> Reports</h4>
+                <div class="module-card module-reports">
+                    <h4><span class="module-icon module-icon-reports"><i class="fas fa-chart-bar"></i></span> Reports</h4>
                     <p>Reportes y análisis.</p>
                     <ul class="module-features">
-                        <li>Ventas por período</li>
-                        <li>Productos más vendidos</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Ventas por período</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Productos más vendidos</li>
                     </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-user-cog"></i> Users</h4>
+                <div class="module-card module-users">
+                    <h4><span class="module-icon module-icon-users"><i class="fas fa-user-cog"></i></span> Users</h4>
                     <p>Administración de usuarios (Admin).</p>
+                    <ul class="module-features">
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Crear y editar usuarios</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Asignación de roles</li>
+                    </ul>
                 </div>
 
-                <div class="module-card">
-                    <h4><i class="fas fa-cog"></i> Settings</h4>
+                <div class="module-card module-settings">
+                    <h4><span class="module-icon module-icon-settings"><i class="fas fa-cog"></i></span> Settings</h4>
                     <p>Configuración del sistema.</p>
+                    <ul class="module-features">
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Preferencias del negocio</li>
+                        <li><span class="status-success"><i class="fas fa-check-circle"></i></span> Cambio de contraseña</li>
+                    </ul>
                 </div>
             </section>
         `,
 
         tutorials: `
             <section id="help-tutorials" class="help-section">
-                <h2><i class="fas fa-graduation-cap"></i> Tutoriales</h2>
+                <h2><span class="section-icon section-icon-tutorials"><i class="fas fa-graduation-cap"></i></span> Tutoriales</h2>
 
                 <h3>Crear una venta en el POS</h3>
-                <div class="tutorial-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Seleccionar productos</h4>
-                        <p>Busca y haz clic en productos para agregar al carrito.</p>
-                    </div>
-                </div>
-                <div class="tutorial-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Seleccionar cliente</h4>
-                        <p>Elige cliente o "Walk-in Customer".</p>
-                    </div>
-                </div>
-                <div class="tutorial-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Elegir método de pago</h4>
-                        <p>Cash, Card o Mobile.</p>
-                    </div>
-                </div>
-                <div class="tutorial-step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>Completar venta</h4>
-                        <p>Haz clic en "Complete Sale".</p>
+                <div class="tutorial-progress">
+                    <div class="tutorial-container">
+                        <div class="tutorial-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Seleccionar productos</h4>
+                                <p>Busca y haz clic en productos para agregar al carrito.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Seleccionar cliente</h4>
+                                <p>Elige cliente o "Walk-in Customer".</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Elegir método de pago</h4>
+                                <p>Cash, Card o Mobile.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Completar venta</h4>
+                                <p>Haz clic en "Complete Sale".</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step tutorial-result">
+                            <div class="step-number step-check"><i class="fas fa-check"></i></div>
+                            <div class="step-content">
+                                <h4>Resultado</h4>
+                                <p>Se genera el recibo y se actualiza el inventario automáticamente.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <h3>Agregar un nuevo producto</h3>
-                <div class="tutorial-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Ir a Products</h4>
-                        <p>Haz clic en "Add Product".</p>
+                <div class="tutorial-progress">
+                    <div class="tutorial-container">
+                        <div class="tutorial-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Ir a Products</h4>
+                                <p>Haz clic en "Add Product" en la barra de acciones.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Completar información</h4>
+                                <p>Ingresa SKU, nombre, precios y stock inicial.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Guardar</h4>
+                                <p>Haz clic en "Add Product" para guardar.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step tutorial-result">
+                            <div class="step-number step-check"><i class="fas fa-check"></i></div>
+                            <div class="step-content">
+                                <h4>Resultado</h4>
+                                <p>El producto aparece en el catálogo y está listo para vender.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="tutorial-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Completar información</h4>
-                        <p>SKU, nombre, precios y stock.</p>
-                    </div>
-                </div>
-                <div class="tutorial-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Guardar</h4>
-                        <p>Haz clic en "Add Product".</p>
+
+                <h3>Ajustar inventario</h3>
+                <div class="tutorial-progress">
+                    <div class="tutorial-container">
+                        <div class="tutorial-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Ir a Inventory</h4>
+                                <p>Selecciona el producto a ajustar.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Seleccionar acción</h4>
+                                <p>Elige "Add Stock" o "Remove Stock".</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Ingresar cantidad</h4>
+                                <p>Especifica la cantidad y motivo del ajuste.</p>
+                            </div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="tutorial-step tutorial-result">
+                            <div class="step-number step-check"><i class="fas fa-check"></i></div>
+                            <div class="step-content">
+                                <h4>Resultado</h4>
+                                <p>El stock se actualiza y queda registrado en el historial.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -2440,37 +2524,54 @@ const help = {
 
         faq: `
             <section id="help-faq" class="help-section">
-                <h2><i class="fas fa-question-circle"></i> FAQ</h2>
+                <h2><span class="section-icon section-icon-faq"><i class="fas fa-question-circle"></i></span> FAQ</h2>
 
-                <div class="faq-category">
-                    <h4>Cuenta</h4>
+                <div class="faq-category faq-account">
+                    <h4><i class="fas fa-user-circle"></i> Cuenta</h4>
                     <details class="faq-item">
-                        <summary>¿Cómo cambio mi contraseña?</summary>
-                        <div class="faq-answer">Ve a Settings > Change Password.</div>
+                        <summary><i class="fas fa-key"></i> ¿Cómo cambio mi contraseña?</summary>
+                        <div class="faq-answer">Ve a Settings > Change Password. Ingresa tu contraseña actual y la nueva.</div>
                     </details>
                     <details class="faq-item">
-                        <summary>¿Qué hago si olvidé mi contraseña?</summary>
-                        <div class="faq-answer">Contacta al administrador para resetearla.</div>
+                        <summary><i class="fas fa-lock"></i> ¿Qué hago si olvidé mi contraseña?</summary>
+                        <div class="faq-answer">Contacta al administrador para resetearla. El administrador puede generar una nueva contraseña temporal.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary><i class="fas fa-user-tag"></i> ¿Cómo cambio mi rol?</summary>
+                        <div class="faq-answer">Solo un administrador puede cambiar los roles de usuario. Solicita el cambio a tu supervisor.</div>
                     </details>
                 </div>
 
-                <div class="faq-category">
-                    <h4>Productos</h4>
+                <div class="faq-category faq-products">
+                    <h4><i class="fas fa-boxes"></i> Productos</h4>
                     <details class="faq-item">
-                        <summary>¿Cómo importo productos masivamente?</summary>
-                        <div class="faq-answer">Ve a Products > Batch Import y descarga la plantilla.</div>
+                        <summary><i class="fas fa-file-excel"></i> ¿Cómo importo productos masivamente?</summary>
+                        <div class="faq-answer">Ve a Products > Batch Import y descarga la plantilla. Llénala con tus datos y súbelo.</div>
+                        <div class="tip-box"><i class="fas fa-lightbulb"></i> Asegúrate de que el archivo sea formato .xlsx o .csv.</div>
                     </details>
                     <details class="faq-item">
-                        <summary>¿Qué significa "Low Stock"?</summary>
-                        <div class="faq-answer">El stock está por debajo del mínimo configurado.</div>
+                        <summary><i class="fas fa-exclamation-triangle"></i> ¿Qué significa "Low Stock"?</summary>
+                        <div class="faq-answer">El stock está por debajo del mínimo configurado. Puedes ajustar el umbral en Settings.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary><i class="fas fa-barcode"></i> ¿Puedo usar el mismo SKU en diferentes productos?</summary>
+                        <div class="faq-answer">No, el SKU debe ser único para cada producto. El sistema validará esto al guardar.</div>
                     </details>
                 </div>
 
-                <div class="faq-category">
-                    <h4>Ventas</h4>
+                <div class="faq-category faq-sales">
+                    <h4><i class="fas fa-cash-register"></i> Ventas</h4>
                     <details class="faq-item">
-                        <summary>¿Puedo anular una venta?</summary>
-                        <div class="faq-answer">Sí, Admin/Manager pueden anular ventas desde Sales.</div>
+                        <summary><i class="fas fa-ban"></i> ¿Puedo anular una venta?</summary>
+                        <div class="faq-answer">Sí, Admin/Manager pueden anular ventas desde Sales. La anulación restaura el inventario automáticamente.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary><i class="fas fa-print"></i> ¿Cómo reimprimo un recibo?</summary>
+                        <div class="faq-answer">Ve a Sales, busca la transacción y haz clic en el ícono de impresión.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary><i class="fas fa-undo"></i> ¿Puedo modificar una venta completada?</summary>
+                        <div class="faq-answer">No puedes modificar ventas completadas. Si hay un error, anula la venta y crea una nueva.</div>
                     </details>
                 </div>
             </section>
@@ -2478,47 +2579,103 @@ const help = {
 
         glossary: `
             <section id="help-glossary" class="help-section">
-                <h2><i class="fas fa-book-open"></i> Glosario</h2>
-                <table class="glossary-table">
-                    <thead><tr><th>Término</th><th>Definición</th></tr></thead>
-                    <tbody>
-                        <tr><td>SKU</td><td>Código único de producto</td></tr>
-                        <tr><td>POS</td><td>Punto de Venta</td></tr>
-                        <tr><td>Walk-in</td><td>Cliente sin registro</td></tr>
-                        <tr><td>Stock</td><td>Cantidad disponible</td></tr>
-                        <tr><td>Low Stock</td><td>Stock bajo el mínimo</td></tr>
-                        <tr><td>Receipt</td><td>Recibo de venta</td></tr>
-                        <tr><td>Loyalty Points</td><td>Puntos de fidelidad</td></tr>
-                        <tr><td>Batch Import</td><td>Importación masiva</td></tr>
-                        <tr><td>Void</td><td>Anular venta</td></tr>
-                        <tr><td>Dashboard</td><td>Panel principal</td></tr>
-                        <tr><td>Category</td><td>Categoría de producto</td></tr>
-                        <tr><td>Supplier</td><td>Proveedor</td></tr>
-                        <tr><td>Role</td><td>Nivel de acceso</td></tr>
-                    </tbody>
-                </table>
+                <h2><span class="section-icon section-icon-glossary"><i class="fas fa-book-open"></i></span> Glosario</h2>
+
+                <div class="glossary-group">
+                    <h4><i class="fas fa-boxes"></i> Productos e Inventario</h4>
+                    <table class="glossary-table">
+                        <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="term-badge term-product">SKU</span></td><td>Código único de producto (Stock Keeping Unit)</td></tr>
+                            <tr><td><span class="term-badge term-product">Stock</span></td><td>Cantidad disponible de un producto</td></tr>
+                            <tr><td><span class="term-badge term-product">Low Stock</span></td><td>Stock bajo el mínimo configurado</td></tr>
+                            <tr><td><span class="term-badge term-product">Category</span></td><td>Categoría de producto para organización</td></tr>
+                            <tr><td><span class="term-badge term-product">Markup</span></td><td>Porcentaje añadido al costo para obtener el precio de venta</td></tr>
+                            <tr><td><span class="term-badge term-product">Cost Price</span></td><td>Precio de adquisición del producto</td></tr>
+                            <tr><td><span class="term-badge term-product">Selling Price</span></td><td>Precio al que se vende el producto al cliente</td></tr>
+                            <tr><td><span class="term-badge term-product">Profit Margin</span></td><td>Porcentaje de ganancia sobre el precio de venta</td></tr>
+                            <tr><td><span class="term-badge term-product">Backorder</span></td><td>Pedido de producto agotado que será entregado después</td></tr>
+                            <tr><td><span class="term-badge term-product">Stock Adjustment</span></td><td>Modificación manual de la cantidad de inventario</td></tr>
+                            <tr><td><span class="term-badge term-product">Inventory Transaction</span></td><td>Registro de cualquier cambio en el inventario</td></tr>
+                            <tr><td><span class="term-badge term-product">Stock Count</span></td><td>Conteo físico de inventario para verificación</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="glossary-group">
+                    <h4><i class="fas fa-cash-register"></i> Ventas y Clientes</h4>
+                    <table class="glossary-table">
+                        <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="term-badge term-sales">POS</span></td><td>Punto de Venta (Point of Sale)</td></tr>
+                            <tr><td><span class="term-badge term-sales">Walk-in</span></td><td>Cliente sin registro en la base de datos</td></tr>
+                            <tr><td><span class="term-badge term-sales">Receipt</span></td><td>Recibo de venta entregado al cliente</td></tr>
+                            <tr><td><span class="term-badge term-sales">Loyalty Points</span></td><td>Puntos de fidelidad acumulados por compras</td></tr>
+                            <tr><td><span class="term-badge term-sales">Void</span></td><td>Anular una venta completada</td></tr>
+                            <tr><td><span class="term-badge term-sales">Customer</span></td><td>Cliente registrado en la base de datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="glossary-group">
+                    <h4><i class="fas fa-cog"></i> Sistema e Interfaz</h4>
+                    <table class="glossary-table">
+                        <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="term-badge term-system">Dashboard</span></td><td>Panel principal con métricas del negocio</td></tr>
+                            <tr><td><span class="term-badge term-system">Supplier</span></td><td>Proveedor de productos</td></tr>
+                            <tr><td><span class="term-badge term-system">Role</span></td><td>Nivel de acceso del usuario en el sistema</td></tr>
+                            <tr><td><span class="term-badge term-system">Permission</span></td><td>Derechos de acceso a funciones específicas</td></tr>
+                            <tr><td><span class="term-badge term-system">JWT Token</span></td><td>Credencial de autenticación del usuario</td></tr>
+                            <tr><td><span class="term-badge term-system">Modal</span></td><td>Ventana emergente para interacciones</td></tr>
+                            <tr><td><span class="term-badge term-system">Sidebar</span></td><td>Panel de navegación lateral</td></tr>
+                            <tr><td><span class="term-badge term-system">Pagination</span></td><td>Navegación entre páginas de resultados</td></tr>
+                            <tr><td><span class="term-badge term-system">Batch Import</span></td><td>Importación masiva desde archivo Excel</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         `,
 
         shortcuts: `
             <section id="help-shortcuts" class="help-section">
-                <h2><i class="fas fa-keyboard"></i> Atajos de Teclado</h2>
+                <h2><span class="section-icon section-icon-shortcuts"><i class="fas fa-keyboard"></i></span> Atajos de Teclado</h2>
                 <div class="shortcuts-grid">
-                    <div class="shortcuts-category">
-                        <h4>Navegación</h4>
+                    <div class="shortcuts-category shortcuts-general">
+                        <h4><i class="fas fa-globe"></i> General</h4>
+                        <div class="shortcut-row"><span>Búsqueda global</span><kbd>Ctrl+K</kbd></div>
                         <div class="shortcut-row"><span>Cerrar modal</span><kbd>Esc</kbd></div>
                         <div class="shortcut-row"><span>Navegar campos</span><kbd>Tab</kbd></div>
+                        <div class="shortcut-row"><span>Guardar formulario</span><kbd>Ctrl+Enter</kbd></div>
                     </div>
-                    <div class="shortcuts-category">
-                        <h4>POS</h4>
-                        <div class="shortcut-row"><span>Buscar</span><kbd>Enter</kbd></div>
-                        <div class="shortcut-row"><span>Cliente</span><kbd>F2</kbd></div>
-                        <div class="shortcut-row"><span>Completar</span><kbd>F8</kbd></div>
+                    <div class="shortcuts-category shortcuts-navigation">
+                        <h4><i class="fas fa-compass"></i> Navegación</h4>
+                        <div class="shortcut-row"><span>Dashboard</span><kbd>1</kbd></div>
+                        <div class="shortcut-row"><span>POS</span><kbd>2</kbd></div>
+                        <div class="shortcut-row"><span>Products</span><kbd>3</kbd></div>
+                        <div class="shortcut-row"><span>Sales</span><kbd>4</kbd></div>
                     </div>
-                    <div class="shortcuts-category">
-                        <h4>Tablas</h4>
-                        <div class="shortcut-row"><span>Filtro</span><kbd>Ctrl+F</kbd></div>
-                        <div class="shortcut-row"><span>Navegar</span><kbd>↑↓</kbd></div>
+                    <div class="shortcuts-category shortcuts-pos">
+                        <h4><i class="fas fa-cash-register"></i> POS</h4>
+                        <div class="shortcut-row"><span>Buscar/Confirmar</span><kbd>Enter</kbd></div>
+                        <div class="shortcut-row"><span>Seleccionar cliente</span><kbd>F2</kbd></div>
+                        <div class="shortcut-row"><span>Limpiar carrito</span><kbd>F4</kbd></div>
+                        <div class="shortcut-row"><span>Completar venta</span><kbd>F8</kbd></div>
+                        <div class="shortcut-row"><span>Eliminar artículo</span><kbd>Delete</kbd></div>
+                    </div>
+                    <div class="shortcuts-category shortcuts-tables">
+                        <h4><i class="fas fa-table"></i> Tablas</h4>
+                        <div class="shortcut-row"><span>Filtro rápido</span><kbd>Ctrl+F</kbd></div>
+                        <div class="shortcut-row"><span>Navegar filas</span><kbd>↑↓</kbd></div>
+                        <div class="shortcut-row"><span>Abrir registro</span><kbd>Enter</kbd></div>
+                        <div class="shortcut-row"><span>Seleccionar todo</span><kbd>Ctrl+A</kbd></div>
+                    </div>
+                    <div class="shortcuts-category shortcuts-editing">
+                        <h4><i class="fas fa-edit"></i> Edición</h4>
+                        <div class="shortcut-row"><span>Cancelar edición</span><kbd>Esc</kbd></div>
+                        <div class="shortcut-row"><span>Eliminar</span><kbd>Delete</kbd></div>
+                        <div class="shortcut-row"><span>Guardar</span><kbd>Ctrl+S</kbd></div>
+                        <div class="shortcut-row"><span>Nuevo</span><kbd>Ctrl+N</kbd></div>
                     </div>
                 </div>
             </section>
@@ -2526,42 +2683,57 @@ const help = {
 
         troubleshooting: `
             <section id="help-troubleshooting" class="help-section">
-                <h2><i class="fas fa-tools"></i> Solución de Problemas</h2>
+                <h2><span class="section-icon section-icon-troubleshooting"><i class="fas fa-tools"></i></span> Solución de Problemas</h2>
 
-                <div class="trouble-item">
-                    <h4>Error: "Cannot connect to server"</h4>
-                    <ol>
-                        <li>Verifica que el servidor esté corriendo</li>
-                        <li>Confirma la URL: http://localhost:3001</li>
-                        <li>Refresca la página (F5)</li>
+                <div class="warning-box"><i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Si los problemas persisten después de seguir estos pasos, contacta al administrador del sistema.</div>
+
+                <div class="trouble-item trouble-error">
+                    <h4><i class="fas fa-times-circle"></i> Error: "Cannot connect to server"</h4>
+                    <ol class="trouble-steps">
+                        <li><span class="step-indicator">1</span> Verifica que el servidor esté corriendo</li>
+                        <li><span class="step-indicator">2</span> Confirma la URL: <code>http://localhost:3001</code></li>
+                        <li><span class="step-indicator">3</span> Refresca la página (F5)</li>
+                        <li><span class="step-indicator">4</span> Limpia la caché del navegador (Ctrl+Shift+Delete)</li>
                     </ol>
                 </div>
 
-                <div class="trouble-item">
-                    <h4>Error: "Invalid credentials"</h4>
-                    <ol>
-                        <li>Verifica usuario y contraseña</li>
-                        <li>Default: admin / admin123</li>
-                        <li>Contacta admin si tu cuenta está bloqueada</li>
+                <div class="trouble-item trouble-warning">
+                    <h4><i class="fas fa-exclamation-circle"></i> Error: "Invalid credentials"</h4>
+                    <ol class="trouble-steps">
+                        <li><span class="step-indicator">1</span> Verifica usuario y contraseña</li>
+                        <li><span class="step-indicator">2</span> Default: <code>admin / admin123</code></li>
+                        <li><span class="step-indicator">3</span> Revisa si Caps Lock está activado</li>
+                        <li><span class="step-indicator">4</span> Contacta admin si tu cuenta está bloqueada</li>
                     </ol>
                 </div>
 
-                <div class="trouble-item">
-                    <h4>El recibo no imprime</h4>
-                    <ol>
-                        <li>Usa Ctrl+P para imprimir manual</li>
-                        <li>Habilita pop-ups en el navegador</li>
+                <div class="trouble-item trouble-info">
+                    <h4><i class="fas fa-info-circle"></i> El recibo no imprime</h4>
+                    <ol class="trouble-steps">
+                        <li><span class="step-indicator">1</span> Usa <kbd>Ctrl+P</kbd> para imprimir manual</li>
+                        <li><span class="step-indicator">2</span> Habilita pop-ups en el navegador</li>
+                        <li><span class="step-indicator">3</span> Verifica que haya una impresora configurada</li>
                     </ol>
                 </div>
 
-                <h3>Códigos de Error HTTP</h3>
-                <table class="table">
-                    <thead><tr><th>Código</th><th>Solución</th></tr></thead>
+                <div class="trouble-item trouble-warning">
+                    <h4><i class="fas fa-clock"></i> La aplicación está lenta</h4>
+                    <ol class="trouble-steps">
+                        <li><span class="step-indicator">1</span> Cierra otras pestañas del navegador</li>
+                        <li><span class="step-indicator">2</span> Limpia la caché del navegador</li>
+                        <li><span class="step-indicator">3</span> Verifica tu conexión a internet</li>
+                    </ol>
+                </div>
+
+                <h3><i class="fas fa-exclamation-triangle"></i> Códigos de Error HTTP</h3>
+                <table class="table error-codes-table">
+                    <thead><tr><th>Código</th><th>Descripción</th><th>Solución</th></tr></thead>
                     <tbody>
-                        <tr><td>401</td><td>Vuelve a iniciar sesión</td></tr>
-                        <tr><td>403</td><td>Contacta al administrador</td></tr>
-                        <tr><td>404</td><td>Verifica el ID o URL</td></tr>
-                        <tr><td>500</td><td>Error del servidor</td></tr>
+                        <tr><td><span class="error-badge error-400">400</span></td><td>Solicitud incorrecta</td><td>Verifica los datos enviados</td></tr>
+                        <tr><td><span class="error-badge error-401">401</span></td><td>No autorizado</td><td>Vuelve a iniciar sesión</td></tr>
+                        <tr><td><span class="error-badge error-403">403</span></td><td>Acceso denegado</td><td>Contacta al administrador</td></tr>
+                        <tr><td><span class="error-badge error-404">404</span></td><td>No encontrado</td><td>Verifica el ID o URL</td></tr>
+                        <tr><td><span class="error-badge error-500">500</span></td><td>Error del servidor</td><td>Intenta más tarde o contacta soporte</td></tr>
                     </tbody>
                 </table>
             </section>
