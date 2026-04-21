@@ -2252,6 +2252,368 @@ const settings = {
     }
 };
 
+// Help module
+const help = {
+    currentSection: 'general',
+
+    content: {
+        general: `
+            <section id="help-general" class="help-section">
+                <h2><i class="fas fa-info-circle"></i> Información General</h2>
+
+                <h3>Acerca de StoreFront</h3>
+                <p>StoreFront es un sistema completo de gestión de inventario y punto de venta (POS) diseñado para pequeños y medianos negocios.</p>
+
+                <h3>Requisitos del Sistema</h3>
+                <ul>
+                    <li>Navegador web moderno (Chrome, Firefox, Edge, Safari)</li>
+                    <li>JavaScript habilitado</li>
+                </ul>
+
+                <h3>Inicio de Sesión</h3>
+                <p>Credenciales por defecto: admin / admin123</p>
+
+                <h3>Roles de Usuario</h3>
+                <ul>
+                    <li><strong>Admin:</strong> Acceso completo</li>
+                    <li><strong>Manager:</strong> Gestión de productos, inventario, reportes</li>
+                    <li><strong>Cashier:</strong> POS y visualización</li>
+                    <li><strong>Staff:</strong> Solo visualización</li>
+                </ul>
+            </section>
+        `,
+
+        modules: `
+            <section id="help-modules" class="help-section">
+                <h2><i class="fas fa-th-large"></i> Módulos del Sistema</h2>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-tachometer-alt"></i> Dashboard</h4>
+                    <p>Panel principal con métricas del negocio.</p>
+                    <ul class="module-features">
+                        <li>Ventas del día y mes</li>
+                        <li>Alertas de stock bajo</li>
+                        <li>Órdenes recientes</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-cash-register"></i> Point of Sale (POS)</h4>
+                    <p>Sistema de punto de venta.</p>
+                    <ul class="module-features">
+                        <li>Búsqueda de productos</li>
+                        <li>Métodos de pago: efectivo, tarjeta, móvil</li>
+                        <li>Generación de recibos</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-boxes"></i> Products</h4>
+                    <p>Gestión del catálogo de productos.</p>
+                    <ul class="module-features">
+                        <li>Crear, editar productos</li>
+                        <li>Importación masiva desde Excel</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-clipboard-list"></i> Inventory</h4>
+                    <p>Control de inventario.</p>
+                    <ul class="module-features">
+                        <li>Ajustes manuales de stock</li>
+                        <li>Historial de transacciones</li>
+                        <li>Alertas de stock bajo</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-receipt"></i> Sales</h4>
+                    <p>Historial de transacciones.</p>
+                    <ul class="module-features">
+                        <li>Lista con filtros por fecha</li>
+                        <li>Ver e imprimir recibos</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-shopping-bag"></i> Orders</h4>
+                    <p>Órdenes del catálogo público.</p>
+                    <ul class="module-features">
+                        <li>Actualización de estados</li>
+                        <li>Cancelación con restauración de inventario</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-users"></i> Customers</h4>
+                    <p>Base de datos de clientes.</p>
+                    <ul class="module-features">
+                        <li>Puntos de lealtad</li>
+                        <li>Historial de compras</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-truck"></i> Suppliers</h4>
+                    <p>Gestión de proveedores.</p>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-chart-bar"></i> Reports</h4>
+                    <p>Reportes y análisis.</p>
+                    <ul class="module-features">
+                        <li>Ventas por período</li>
+                        <li>Productos más vendidos</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-user-cog"></i> Users</h4>
+                    <p>Administración de usuarios (Admin).</p>
+                </div>
+
+                <div class="module-card">
+                    <h4><i class="fas fa-cog"></i> Settings</h4>
+                    <p>Configuración del sistema.</p>
+                </div>
+            </section>
+        `,
+
+        tutorials: `
+            <section id="help-tutorials" class="help-section">
+                <h2><i class="fas fa-graduation-cap"></i> Tutoriales</h2>
+
+                <h3>Crear una venta en el POS</h3>
+                <div class="tutorial-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Seleccionar productos</h4>
+                        <p>Busca y haz clic en productos para agregar al carrito.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Seleccionar cliente</h4>
+                        <p>Elige cliente o "Walk-in Customer".</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Elegir método de pago</h4>
+                        <p>Cash, Card o Mobile.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Completar venta</h4>
+                        <p>Haz clic en "Complete Sale".</p>
+                    </div>
+                </div>
+
+                <h3>Agregar un nuevo producto</h3>
+                <div class="tutorial-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Ir a Products</h4>
+                        <p>Haz clic en "Add Product".</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Completar información</h4>
+                        <p>SKU, nombre, precios y stock.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Guardar</h4>
+                        <p>Haz clic en "Add Product".</p>
+                    </div>
+                </div>
+            </section>
+        `,
+
+        faq: `
+            <section id="help-faq" class="help-section">
+                <h2><i class="fas fa-question-circle"></i> FAQ</h2>
+
+                <div class="faq-category">
+                    <h4>Cuenta</h4>
+                    <details class="faq-item">
+                        <summary>¿Cómo cambio mi contraseña?</summary>
+                        <div class="faq-answer">Ve a Settings > Change Password.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>¿Qué hago si olvidé mi contraseña?</summary>
+                        <div class="faq-answer">Contacta al administrador para resetearla.</div>
+                    </details>
+                </div>
+
+                <div class="faq-category">
+                    <h4>Productos</h4>
+                    <details class="faq-item">
+                        <summary>¿Cómo importo productos masivamente?</summary>
+                        <div class="faq-answer">Ve a Products > Batch Import y descarga la plantilla.</div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>¿Qué significa "Low Stock"?</summary>
+                        <div class="faq-answer">El stock está por debajo del mínimo configurado.</div>
+                    </details>
+                </div>
+
+                <div class="faq-category">
+                    <h4>Ventas</h4>
+                    <details class="faq-item">
+                        <summary>¿Puedo anular una venta?</summary>
+                        <div class="faq-answer">Sí, Admin/Manager pueden anular ventas desde Sales.</div>
+                    </details>
+                </div>
+            </section>
+        `,
+
+        glossary: `
+            <section id="help-glossary" class="help-section">
+                <h2><i class="fas fa-book-open"></i> Glosario</h2>
+                <table class="glossary-table">
+                    <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+                    <tbody>
+                        <tr><td>SKU</td><td>Código único de producto</td></tr>
+                        <tr><td>POS</td><td>Punto de Venta</td></tr>
+                        <tr><td>Walk-in</td><td>Cliente sin registro</td></tr>
+                        <tr><td>Stock</td><td>Cantidad disponible</td></tr>
+                        <tr><td>Low Stock</td><td>Stock bajo el mínimo</td></tr>
+                        <tr><td>Receipt</td><td>Recibo de venta</td></tr>
+                        <tr><td>Loyalty Points</td><td>Puntos de fidelidad</td></tr>
+                        <tr><td>Batch Import</td><td>Importación masiva</td></tr>
+                        <tr><td>Void</td><td>Anular venta</td></tr>
+                        <tr><td>Dashboard</td><td>Panel principal</td></tr>
+                        <tr><td>Category</td><td>Categoría de producto</td></tr>
+                        <tr><td>Supplier</td><td>Proveedor</td></tr>
+                        <tr><td>Role</td><td>Nivel de acceso</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        `,
+
+        shortcuts: `
+            <section id="help-shortcuts" class="help-section">
+                <h2><i class="fas fa-keyboard"></i> Atajos de Teclado</h2>
+                <div class="shortcuts-grid">
+                    <div class="shortcuts-category">
+                        <h4>Navegación</h4>
+                        <div class="shortcut-row"><span>Cerrar modal</span><kbd>Esc</kbd></div>
+                        <div class="shortcut-row"><span>Navegar campos</span><kbd>Tab</kbd></div>
+                    </div>
+                    <div class="shortcuts-category">
+                        <h4>POS</h4>
+                        <div class="shortcut-row"><span>Buscar</span><kbd>Enter</kbd></div>
+                        <div class="shortcut-row"><span>Cliente</span><kbd>F2</kbd></div>
+                        <div class="shortcut-row"><span>Completar</span><kbd>F8</kbd></div>
+                    </div>
+                    <div class="shortcuts-category">
+                        <h4>Tablas</h4>
+                        <div class="shortcut-row"><span>Filtro</span><kbd>Ctrl+F</kbd></div>
+                        <div class="shortcut-row"><span>Navegar</span><kbd>↑↓</kbd></div>
+                    </div>
+                </div>
+            </section>
+        `,
+
+        troubleshooting: `
+            <section id="help-troubleshooting" class="help-section">
+                <h2><i class="fas fa-tools"></i> Solución de Problemas</h2>
+
+                <div class="trouble-item">
+                    <h4>Error: "Cannot connect to server"</h4>
+                    <ol>
+                        <li>Verifica que el servidor esté corriendo</li>
+                        <li>Confirma la URL: http://localhost:3001</li>
+                        <li>Refresca la página (F5)</li>
+                    </ol>
+                </div>
+
+                <div class="trouble-item">
+                    <h4>Error: "Invalid credentials"</h4>
+                    <ol>
+                        <li>Verifica usuario y contraseña</li>
+                        <li>Default: admin / admin123</li>
+                        <li>Contacta admin si tu cuenta está bloqueada</li>
+                    </ol>
+                </div>
+
+                <div class="trouble-item">
+                    <h4>El recibo no imprime</h4>
+                    <ol>
+                        <li>Usa Ctrl+P para imprimir manual</li>
+                        <li>Habilita pop-ups en el navegador</li>
+                    </ol>
+                </div>
+
+                <h3>Códigos de Error HTTP</h3>
+                <table class="table">
+                    <thead><tr><th>Código</th><th>Solución</th></tr></thead>
+                    <tbody>
+                        <tr><td>401</td><td>Vuelve a iniciar sesión</td></tr>
+                        <tr><td>403</td><td>Contacta al administrador</td></tr>
+                        <tr><td>404</td><td>Verifica el ID o URL</td></tr>
+                        <tr><td>500</td><td>Error del servidor</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        `
+    },
+
+    init() {
+        this.render();
+        this.setupNavigation();
+        this.setupSearch();
+    },
+
+    render() {
+        const container = document.getElementById('help-content');
+        if (!container) return;
+        container.innerHTML = Object.values(this.content).join('');
+    },
+
+    setupNavigation() {
+        const navItems = document.querySelectorAll('.help-nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navItems.forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
+                const sectionId = item.getAttribute('href').substring(1);
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    },
+
+    setupSearch() {
+        const searchInput = document.getElementById('help-search');
+        if (!searchInput) return;
+        searchInput.addEventListener('input', utils.debounce((e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const content = document.getElementById('help-content');
+            if (!query) {
+                content.querySelectorAll('.help-section').forEach(s => s.style.display = '');
+                return;
+            }
+            content.querySelectorAll('.help-section').forEach(section => {
+                const text = section.textContent.toLowerCase();
+                section.style.display = text.includes(query) ? '' : 'none';
+            });
+        }, 300));
+    }
+};
+
 // Modal helper
 const modal = {
     show(title, content) {
@@ -2318,6 +2680,9 @@ function navigateTo(page) {
             break;
         case 'settings':
             settings.load();
+            break;
+        case 'help':
+            help.init();
             break;
     }
 }
