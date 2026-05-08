@@ -13,7 +13,6 @@ resource "kubernetes_persistent_volume_claim" "sqlite_data" {
       }
     }
 
-    storage_class_name = "standard"
   }
 }
 
@@ -31,7 +30,5 @@ resource "kubernetes_persistent_volume_claim" "uploads_data" {
         storage = "2Gi"
       }
     }
-
-    storage_class_name = "standard"
   }
 }
