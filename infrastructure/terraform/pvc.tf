@@ -13,7 +13,14 @@ resource "kubernetes_persistent_volume_claim" "sqlite_data" {
       }
     }
 
+    selector {
+      match_labels = {
+        type = "sqlite"
+      }
+    }
   }
+
+  wait_until_bound = false
 }
 
 resource "kubernetes_persistent_volume_claim" "uploads_data" {
@@ -30,5 +37,13 @@ resource "kubernetes_persistent_volume_claim" "uploads_data" {
         storage = "2Gi"
       }
     }
+
+    selector {
+      match_labels = {
+        type = "uploads"
+      }
+    }
   }
+
+  wait_until_bound = false
 }

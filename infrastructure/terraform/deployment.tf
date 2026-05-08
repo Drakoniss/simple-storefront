@@ -50,8 +50,7 @@ resource "kubernetes_deployment" "storefront_app" {
           }
 
           liveness_probe {
-            http_get {
-              path = "/api/products"
+            tcp_socket {
               port = 3001
             }
             initial_delay_seconds = 30
@@ -61,8 +60,7 @@ resource "kubernetes_deployment" "storefront_app" {
           }
 
           readiness_probe {
-            http_get {
-              path = "/api/products"
+            tcp_socket {
               port = 3001
             }
             initial_delay_seconds = 10
