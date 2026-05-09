@@ -5,7 +5,7 @@ resource "kubernetes_service" "storefront_svc" {
   }
 
   spec {
-    type = "LoadBalancer"
+    type = "NodePort"
 
     selector = {
       app = var.app_name
